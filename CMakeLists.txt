@@ -13,12 +13,16 @@ add_executable(${PROJECT_NAME}
 )
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 
-# Add FreeGLUT as a submodule
-add_subdirectory(${LIBRARIES_PATH}/freeglut)
-
-# Include FreeGLUT headers
-target_include_directories(${PROJECT_NAME} PRIVATE ${LIBRARIES_PATH}/freeglut/include)
-
 # Find and link OpenGL
 find_package(OpenGL REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE freeglut_static ${OPENGL_LIBRARIES})
+
+# Add libs
+add_subdirectory(
+    ${LIBRARIES_PATH}/freeglut
+    ${LIBRARIES_PATH}/glm)
+
+# Include lib headers
+target_include_directories(
+    ${PROJECT_NAME} PRIVATE ${LIBRARIES_PATH}/freeglut/include
+    ${PROJECT_NAME} PRIVATE ${LIBRARIES_PATH}/glm/glm)

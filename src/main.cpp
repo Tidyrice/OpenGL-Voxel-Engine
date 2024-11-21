@@ -15,7 +15,7 @@ int main (int argc, char* argv[]) {
 
     glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
     glutInitWindowPosition(INITIAL_WINDOW_POSITION);
-    int window = glutCreateWindow(WINDOW_NAME);
+    int window = glutCreateWindow(WINDOW_NAME); //TODO: move to window class
     std::cout << "Window id: " << window << std::endl;
 
     //clear all colours
