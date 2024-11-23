@@ -6,6 +6,9 @@ void GameController::HandleNormalKeys(unsigned char key, int x, int y)
 {
     switch (key)
     {
+        case 27: //escape key
+            exit(0);
+            break;
         case 'w':
             std::cout << "w pressed" << std::endl;
             break;
