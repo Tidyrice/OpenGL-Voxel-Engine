@@ -1,17 +1,25 @@
 #include "window.h"
 #include <GL/freeglut.h>
+#include "controller.h"
 
-void Window::CreateAppWindow(int w, int h, int pos_x, int pos_y, std::string window_name)
+void Window::CreateAndInitializeWindow(int w, int h, int pos_x, int pos_y, std::string window_name)
 {
     glutInitWindowSize(w, h);
     glutInitWindowPosition(pos_x, pos_y);
     windowId = glutCreateWindow(window_name.c_str());
+
+    RegisterCallbacks();
 }
 
 void Window::RegisterCallbacks()
 {
     glutDisplayFunc(RenderSceneCallback);
     glutReshapeFunc(WindowResizeCallback);
+    glutIdleFunc(RenderSceneCallback);
+
+    //handle input
+    glutKeyboardFunc(Controller::ProcessNormalKeysCallback);
+    glutSpecialFunc(Controller::ProcessSpecialKeysCallback);
 }
 
 void Window::Clear()

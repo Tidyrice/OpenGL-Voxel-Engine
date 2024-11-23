@@ -21,13 +21,13 @@ class Window {
 
         //pos_x and pos_y are the position of the window on the screen
         //this method should only be called once
-        void CreateAppWindow(int w, int h, int pos_x, int pos_y, std::string window_name);
-
-        void RegisterCallbacks();
+        void CreateAndInitializeWindow(int w, int h, int pos_x, int pos_y, std::string window_name);
 
         void Clear();
 
     private:
+        void RegisterCallbacks();
+
         static void RenderSceneCallback();
         void HandleRenderScene();
 

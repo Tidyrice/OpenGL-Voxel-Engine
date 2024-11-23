@@ -1,17 +1,23 @@
 # Add the main executable
 add_executable(${PROJECT_NAME} main.cpp)
 
-# Add subdirectories
-add_subdirectory(view)
-
-# Link libraries and include directories
-target_link_libraries(${PROJECT_NAME} PRIVATE
+# Include directories for the main executable
+target_include_directories(${PROJECT_NAME} PUBLIC
     view
-    freeglut_static
-    ${OPENGL_LIBRARIES}
+    controller
+    ### model
+    ${LIBRARY_INCLUDE_DIRS}
 )
 
-# Include directories for this library
-target_include_directories(${PROJECT_NAME} PRIVATE
-    ${LIBRARY_INCLUDE_DIRS}
+# Add subdirectories
+add_subdirectory(view)
+add_subdirectory(controller)
+### add_subdirectory(model)
+
+# Link libraries and dependencies to the main executable
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    view
+    controller
+    freeglut_static
+    ${OPENGL_LIBRARIES}
 )
