@@ -1,17 +1,21 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-#include "window.h"
 #include <memory>
+
+class Window;
+class Scene;
 
 class Controller {
     public:
-        Controller() = default;
+        Controller(Scene* s): scene{s} {};
         virtual ~Controller() = default;
 
-        static void SetActiveControllerInstance(Controller* controller);
+        inline static void SetActiveControllerInstance(Controller* c)
+        {
+            active_controller_instance = c;
+        }
 
-        //these functions will throw if no active controller is set
         static void ProcessNormalKeysCallback(unsigned char key, int x, int y);
         static void ProcessSpecialKeysCallback(int key, int x, int y);
 
@@ -19,6 +23,8 @@ class Controller {
         static Controller* active_controller_instance;
         virtual void HandleNormalKeys(unsigned char key, int x, int y) = 0;
         virtual void HandleSpecialKeys(int key, int x, int y) = 0;
+
+        Scene* scene;
 };
 
 #endif // CONTROLLER_H

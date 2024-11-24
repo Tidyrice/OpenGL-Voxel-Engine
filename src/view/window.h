@@ -3,6 +3,8 @@
 
 #include <string>
 
+class Scene;
+
 class Window {
     private:
         Window() = default; //private constructor for singleton design pattern
@@ -21,7 +23,9 @@ class Window {
 
         //pos_x and pos_y are the position of the window on the screen
         //this method should only be called once
-        void CreateAndInitializeWindow(int w, int h, int pos_x, int pos_y, std::string window_name);
+        void CreateAndInitializeWindow(int w, int h, int pos_x, int pos_y, std::string window_name, Scene* s);
+
+        inline void SetScene(Scene* s) { scene = s; }
 
         void Clear();
 
@@ -29,12 +33,12 @@ class Window {
         void RegisterCallbacks();
 
         static void RenderSceneCallback();
-        void HandleRenderScene();
 
         static void WindowResizeCallback(int w, int h);
         void HandleResize(int w, int h);
 
         int windowId;
+        Scene* scene;
 };
 
 #endif // WINDOW_H

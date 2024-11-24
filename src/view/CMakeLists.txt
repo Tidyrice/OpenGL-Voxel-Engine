@@ -4,6 +4,7 @@ add_library(view window.cpp)
 # Link libraries required by the view module
 target_link_libraries(view PRIVATE
     controller
+    scene
     freeglut_static
     ${OPENGL_LIBRARIES}
 )

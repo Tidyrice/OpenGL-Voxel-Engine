@@ -5,7 +5,10 @@
 
 class GameScene : public Scene {
     public:
-    
+        GameScene() = default;
+        ~GameScene() = default;
+
+        void HandleRenderScene() override;
     private:
 };
 

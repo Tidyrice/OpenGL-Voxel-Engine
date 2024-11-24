@@ -1,13 +1,15 @@
 #include "window.h"
 #include <GL/freeglut.h>
 #include "controller.h"
+#include "scene.h"
 
-void Window::CreateAndInitializeWindow(int w, int h, int pos_x, int pos_y, std::string window_name)
+void Window::CreateAndInitializeWindow(int w, int h, int pos_x, int pos_y, std::string window_name, Scene* s)
 {
     glutInitWindowSize(w, h);
     glutInitWindowPosition(pos_x, pos_y);
     windowId = glutCreateWindow(window_name.c_str());
 
+    SetScene(s);
     RegisterCallbacks();
 }
 
@@ -32,24 +34,10 @@ void Window::Clear()
 
 // ---- PRIVATE METHODS ---- //
 
-void Window::RenderSceneCallback() //this is needed because GLUT requires non-member or satatic member functions
+void Window::RenderSceneCallback()
 {
-	getInstance().HandleRenderScene();
+	getInstance().scene->HandleRenderScene();
 }
-
-void Window::HandleRenderScene()
-{
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glBegin(GL_TRIANGLES);
-		glVertex3f(-2,-2,-5.0);
-		glVertex3f(2,0.0,-5.0);
-		glVertex3f(0.0,2,-5.0);
-	glEnd();
-
-	glutSwapBuffers();
-}
-
 
 void Window::WindowResizeCallback(int w, int h) //this is needed because GLUT requires non-member or satatic member functions
 {
