@@ -8,7 +8,11 @@ class GameScene : public Scene {
         GameScene() = default;
         ~GameScene() = default;
 
-        void HandleRenderScene() override;
+        void HandleWKeyPress() override;
+        void HandleAKeyPress() override;
+        void HandleSKeyPress() override;
+        void HandleDKeyPress() override;
+
     private:
 };
 

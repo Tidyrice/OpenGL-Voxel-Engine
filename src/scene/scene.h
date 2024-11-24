@@ -2,6 +2,7 @@
 #define SCENE_H
 
 #include <memory>
+#include <glm/glm.hpp>
 
 class Camera;
 
@@ -10,10 +11,15 @@ class Scene {
         Scene();
         virtual ~Scene() = 0;
 
-        virtual void HandleRenderScene() = 0;
-        // void UpdateCamera
+        virtual void HandleWKeyPress() = 0;
+        virtual void HandleAKeyPress() = 0;
+        virtual void HandleSKeyPress() = 0;
+        virtual void HandleDKeyPress() = 0;
 
-    private:
+        // Window interface methods
+        glm::mat4 GetViewMatrix() const;
+
+    protected:
         std::unique_ptr<Camera> camera;
 };
 

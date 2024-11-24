@@ -1,15 +1,23 @@
 #include "game_scene.h"
+#include "camera.h"
 #include <GL/freeglut.h>
 
-void GameScene::HandleRenderScene()
+void GameScene::HandleWKeyPress()
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    camera->MoveForward();
+}
 
-    glBegin(GL_TRIANGLES);
-        glVertex3f(-2,-2,-5.0);
-        glVertex3f(2,0.0,-5.0);
-        glVertex3f(0.0,2,-5.0);
-    glEnd();
+void GameScene::HandleAKeyPress()
+{
+    camera->MoveLeft();
+}
 
-    glutSwapBuffers();
+void GameScene::HandleSKeyPress()
+{
+    camera->MoveBackward();
+}
+
+void GameScene::HandleDKeyPress()
+{
+    camera->MoveRight();
 }

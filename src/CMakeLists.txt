@@ -18,6 +18,7 @@ add_subdirectory(scene)
 target_link_libraries(${PROJECT_NAME} PRIVATE
     view
     controller
+    scene
     freeglut_static
     ${OPENGL_LIBRARIES}
 )

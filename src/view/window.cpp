@@ -36,10 +36,36 @@ void Window::Clear()
 
 void Window::RenderSceneCallback()
 {
-	getInstance().scene->HandleRenderScene();
+	getInstance().HandleRenderScene();
 }
 
-void Window::WindowResizeCallback(int w, int h) //this is needed because GLUT requires non-member or satatic member functions
+void Window::HandleRenderScene()
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // glUseProgram(shaderProgram);
+
+    // glm::mat4 viewMatrix = scene->GetViewMatrix();
+    // glm::mat4 projectionMatrix = glm::perspective(glm::radians(45.0f), (float)windowWidth / windowHeight, 0.1f, 100.0f);
+    // glm::mat4 modelMatrix = glm::mat4(1.0f);
+
+    // glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
+    // glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+    // glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
+
+    // glBindVertexArray(VAO);
+    // // glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+
+    glBegin(GL_TRIANGLES);
+        glVertex3f(-2,-2,-5.0);
+        glVertex3f(2,0.0,-5.0);
+        glVertex3f(0.0,2,-5.0);
+    glEnd();
+
+    glutSwapBuffers();
+}
+
+void Window::WindowResizeCallback(int w, int h) //this is needed because GLUT requires non-member or static member functions
 {
     getInstance().HandleResize(w, h);
 }
@@ -65,4 +91,7 @@ void Window::HandleResize(int w, int h)
 
     // Get Back to the Modelview
     glMatrixMode(GL_MODELVIEW);
+
+    windowWidth = w;
+    windowHeight = h;
 }

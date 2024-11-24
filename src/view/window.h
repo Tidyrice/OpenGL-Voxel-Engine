@@ -33,11 +33,14 @@ class Window {
         void RegisterCallbacks();
 
         static void RenderSceneCallback();
+        void HandleRenderScene();
 
         static void WindowResizeCallback(int w, int h);
         void HandleResize(int w, int h);
 
-        int windowId;
+        int windowId = 0;
+        int windowWidth = 0;
+        int windowHeight = 0;
         Scene* scene;
 };
 

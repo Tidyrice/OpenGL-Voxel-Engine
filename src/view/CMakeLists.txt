@@ -6,6 +6,7 @@ target_link_libraries(view PRIVATE
     controller
     scene
     freeglut_static
+    glm
     ${OPENGL_LIBRARIES}
 )
 
