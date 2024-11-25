@@ -20,5 +20,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     controller
     scene
     freeglut_static
+    glad
     ${OPENGL_LIBRARIES}
 )

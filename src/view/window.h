@@ -24,21 +24,20 @@ class Window {
         //pos_x and pos_y are the position of the window on the screen
         //this method should only be called once
         void CreateAndInitializeWindow(int w, int h, int pos_x, int pos_y, std::string window_name, Scene* s);
+        void RegisterWindowCallbacks();
 
         inline void SetScene(Scene* s) { scene = s; }
 
         void Clear();
 
     private:
-        void RegisterCallbacks();
-
         static void RenderSceneCallback();
         void HandleRenderScene();
 
         static void WindowResizeCallback(int w, int h);
         void HandleResize(int w, int h);
 
-        int windowId = 0;
+        int windowId = -1;
         int windowWidth = 0;
         int windowHeight = 0;
         Scene* scene;

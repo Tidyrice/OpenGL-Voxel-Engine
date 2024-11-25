@@ -2,6 +2,7 @@
 #include <GL/freeglut.h>
 #include "controller.h"
 #include "scene.h"
+#include <iostream>
 
 void Window::CreateAndInitializeWindow(int w, int h, int pos_x, int pos_y, std::string window_name, Scene* s)
 {
@@ -10,11 +11,15 @@ void Window::CreateAndInitializeWindow(int w, int h, int pos_x, int pos_y, std::
     windowId = glutCreateWindow(window_name.c_str());
 
     SetScene(s);
-    RegisterCallbacks();
 }
 
-void Window::RegisterCallbacks()
+void Window::RegisterWindowCallbacks()
 {
+    if (windowId == -1) {
+        std::cerr << "Window::RegisterWindowCallbacks(): window not created yet" << std::endl;
+        return;
+    }
+
     glutDisplayFunc(RenderSceneCallback);
     glutReshapeFunc(WindowResizeCallback);
     glutIdleFunc(RenderSceneCallback);
@@ -56,11 +61,11 @@ void Window::HandleRenderScene()
     // glBindVertexArray(VAO);
     // // glDrawArrays(GL_TRIANGLES, 0, vertexCount);
 
-    glBegin(GL_TRIANGLES);
-        glVertex3f(-2,-2,-5.0);
-        glVertex3f(2,0.0,-5.0);
-        glVertex3f(0.0,2,-5.0);
-    glEnd();
+	GLfloat vertices[] = { //equilateral triangle
+		-0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // Lower left corner
+		0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // Lower right corner
+		0.0f, 0.5f * float(sqrt(3)) * 2 / 3, 0.0f // Upper corner
+	};
 
     glutSwapBuffers();
 }

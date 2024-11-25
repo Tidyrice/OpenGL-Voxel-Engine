@@ -17,6 +17,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(LIBRARY_INCLUDE_DIRS
     ${LIBRARIES_PATH}/freeglut/include
     ${LIBRARIES_PATH}/glm/glm
+    ${LIBRARIES_PATH}/glad/include
 )
 
 # Include directories globally for all subdirectories
@@ -25,4 +26,5 @@ include_directories(${LIBRARY_INCLUDE_DIRS})
 # Add libraries and subdirectories
 add_subdirectory(${LIBRARIES_PATH}/freeglut)
 add_subdirectory(${LIBRARIES_PATH}/glm)
+add_subdirectory(${LIBRARIES_PATH}/glad)
 add_subdirectory(src)
