@@ -11,5 +11,4 @@ target_link_libraries(controller PRIVATE
 # Include directories for this library
 target_include_directories(controller PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${LIBRARY_INCLUDE_DIRS}
 )

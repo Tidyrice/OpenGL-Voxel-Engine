@@ -1,3 +1,4 @@
+#include <glad/glad.h>
 #include "window.h"
 #include <GL/freeglut.h>
 #include "controller.h"
@@ -8,14 +9,79 @@ void Window::CreateAndInitializeWindow(int w, int h, int pos_x, int pos_y, std::
 {
     glutInitWindowSize(w, h);
     glutInitWindowPosition(pos_x, pos_y);
-    windowId = glutCreateWindow(window_name.c_str());
+    windowId_ = glutCreateWindow(window_name.c_str());
 
     SetScene(s);
 }
 
-void Window::RegisterWindowCallbacks()
+void Window::InitializeShaders(const char* vertex_shader_src, const char* fragment_shader_src)
 {
-    if (windowId == -1) {
+    int success;
+    char infoLog[512];
+
+    GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertex_shader, 1, &vertex_shader_src, NULL);
+    glCompileShader(vertex_shader);
+    glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        glGetShaderInfoLog(vertex_shader, 512, NULL, infoLog);
+        std::cerr << "[ERROR]: Vertex shader compilation failed:\n" << infoLog << std::endl;
+    }
+
+    GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragment_shader, 1, &fragment_shader_src, NULL);
+    glCompileShader(fragment_shader);
+    glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        glGetShaderInfoLog(fragment_shader, 512, NULL, infoLog);
+        std::cerr << "[ERROR]: Fragment shader compilation failed:\n" << infoLog << std::endl;
+    }
+
+    shader_program_ = glCreateProgram();
+    glAttachShader(shader_program_, vertex_shader);
+    glAttachShader(shader_program_, fragment_shader);
+    glLinkProgram(shader_program_);
+    glGetProgramiv(shader_program_, GL_LINK_STATUS, &success);
+    if (!success) {
+        glGetProgramInfoLog(shader_program_, 512, NULL, infoLog);
+        std::cerr << "[ERROR]: Shader program linking failed:\n" << infoLog << std::endl;
+    }
+    glUseProgram(shader_program_);
+    glDeleteShader(vertex_shader);
+    glDeleteShader(fragment_shader);
+}
+
+void Window::InitializeBuffers()
+{
+    //some temporary data
+    float vertices[] = {
+        0.5f,  0.5f, 0.0f,  // top right
+        0.5f, -0.5f, 0.0f,  // bottom right
+        -0.5f, -0.5f, 0.0f,  // bottom left
+        -0.5f,  0.5f, 0.0f   // top left 
+    };
+    GLuint indices[] = {  // note that we start from 0!
+        0, 1, 3,   // first triangle
+        1, 2, 3    // second triangle
+    };
+
+    glGenVertexArrays(1, &VAO_);
+    glGenBuffers(1, &VBO_);
+    glGenBuffers(1, &EBO_);
+
+    glBindVertexArray(VAO_);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+}
+
+void Window::RegisterWindowCallbacks() const
+{
+    if (windowId_ == -1) {
         std::cerr << "Window::RegisterWindowCallbacks(): window not created yet" << std::endl;
         return;
     }
@@ -46,26 +112,14 @@ void Window::RenderSceneCallback()
 
 void Window::HandleRenderScene()
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
 
-    // glUseProgram(shaderProgram);
-
-    // glm::mat4 viewMatrix = scene->GetViewMatrix();
-    // glm::mat4 projectionMatrix = glm::perspective(glm::radians(45.0f), (float)windowWidth / windowHeight, 0.1f, 100.0f);
-    // glm::mat4 modelMatrix = glm::mat4(1.0f);
-
-    // glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
-    // glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projectionMatrix));
-    // glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
-
-    // glBindVertexArray(VAO);
-    // // glDrawArrays(GL_TRIANGLES, 0, vertexCount);
-
-	GLfloat vertices[] = { //equilateral triangle
-		-0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // Lower left corner
-		0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // Lower right corner
-		0.0f, 0.5f * float(sqrt(3)) * 2 / 3, 0.0f // Upper corner
-	};
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // FILL MODE
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // WIREFRAME MODE
+    glUseProgram(shader_program_);
+    glBindVertexArray(VAO_);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     glutSwapBuffers();
 }
@@ -77,26 +131,7 @@ void Window::WindowResizeCallback(int w, int h) //this is needed because GLUT re
 
 void Window::HandleResize(int w, int h)
 {
-    if (h == 0) {
-        h = 1;
-    }
-    float ratio = 1.0* w / h;
-
-    // Use the Projection Matrix
-    glMatrixMode(GL_PROJECTION);
-
-    // Reset Matrix
-    glLoadIdentity();
-
-    // Set the viewport to be the entire window
     glViewport(0, 0, w, h);
-
-    // Set the correct perspective.
-    gluPerspective(45,ratio,1,1000);
-
-    // Get Back to the Modelview
-    glMatrixMode(GL_MODELVIEW);
-
-    windowWidth = w;
-    windowHeight = h;
+    windowWidth_ = w;
+    windowHeight_ = h;
 }

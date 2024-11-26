@@ -12,5 +12,4 @@ target_link_libraries(scene PUBLIC
 # Include directories for this library
 target_include_directories(scene PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${LIBRARY_INCLUDE_DIRS}
 )

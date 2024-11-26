@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 set (PROJECT_NAME "ProcGen")
 set(LIBRARIES_PATH "${CMAKE_SOURCE_DIR}/lib")
+set(ASSETS_PATH "${CMAKE_SOURCE_DIR}/assets")
 
 project(${PROJECT_NAME} VERSION 1.0)
 set(CMAKE_CXX_STANDARD 20)
@@ -12,6 +13,9 @@ find_package(OpenGL REQUIRED)
 
 # Set global output directory for all executables to root build directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
+# Define a preprocessor macro for the assets path
+add_compile_definitions(ASSETS_PATH="${ASSETS_PATH}")
 
 # Include lib headers (must be defined BEFORE add_subdirectory)
 set(LIBRARY_INCLUDE_DIRS

@@ -7,4 +7,7 @@
 #define INITIAL_WINDOW_POSITION_Y 100
 #define WINDOW_NAME "Procedural Generation"
 
+#define VERTEX_SHADER_PATH ASSETS_PATH "/shaders/vertex_shader.glsl"
+#define FRAGMENT_SHADER_PATH ASSETS_PATH "/shaders/fragment_shader.glsl"
+
 #endif // CONFIG_H
