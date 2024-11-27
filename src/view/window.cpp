@@ -55,11 +55,11 @@ void Window::InitializeBuffers()
 {
     //some temporary data
     float vertices[] = {
-        0.5f,  0.5f, 0.0f,  // top right
-        0.5f, -0.5f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f,  // bottom left
-        -0.5f,  0.5f, 0.0f   // top left 
-    };
+        // positions        // colors
+        0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // bottom right
+        -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // bottom left
+        0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f    // top 
+    };   
     GLuint indices[] = {  // note that we start from 0!
         0, 1, 3,   // first triangle
         1, 2, 3    // second triangle
@@ -115,11 +115,17 @@ void Window::HandleRenderScene()
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // FILL MODE
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // WIREFRAME MODE
+    float timeValue = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
+    float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+    int vertexColorLocation = glGetUniformLocation(shader_program_, "color");
     glUseProgram(shader_program_);
+    glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // FILL MODE
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // WIREFRAME MODE
     glBindVertexArray(VAO_);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    
 
     glutSwapBuffers();
 }
