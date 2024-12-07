@@ -1,5 +1,5 @@
 # Create a library for the view module
-add_library(view window.cpp)
+add_library(view window.cpp shader.cpp)
 
 # Link libraries required by the view module
 target_link_libraries(view PUBLIC

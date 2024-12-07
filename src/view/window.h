@@ -4,6 +4,7 @@
 #include <string>
 #include <GL/freeglut.h>
 
+class Shader;
 class Scene;
 
 class Window {
@@ -18,10 +19,10 @@ class Window {
         }
 
         void CreateAndInitializeWindow(int w, int h, int pos_x, int pos_y, std::string window_name, Scene* s);
-        void InitializeShaders(const char* vertex_shader_src, const char* fragment_shader_src);
         void InitializeBuffers();
         void RegisterWindowCallbacks() const;
 
+        inline void SetShader(Shader* s) { shader_ = s; }
         inline void SetScene(Scene* s) { scene_ = s; }
 
         void Clear();
@@ -38,10 +39,10 @@ class Window {
         void HandleResize(int w, int h);
 
         GLuint VAO_, VBO_, EBO_;
-        GLuint shader_program_;
         int windowId_ = -1;
         int windowWidth_ = 0;
         int windowHeight_ = 0;
+        Shader* shader_;
         Scene* scene_;
 };
 

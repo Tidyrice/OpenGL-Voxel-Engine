@@ -1,25 +1,16 @@
 #include <glad/glad.h>
 #include <GL/freeglut.h>
 #include <iostream>
-#include <sstream>
-#include <fstream>
 
 #include "config.h"
 #include "window.h"
+#include "shader.h"
 #include "game_controller.h"
 #include "game_scene.h"
 
 Window& window_inst = Window::getInstance();
 GameScene scene{};
 GameController controller{&scene};
-
-std::string ReadFile(std::string filename) {
-    std::cout<<filename<<std::endl;
-    std::ifstream f(filename);
-    std::stringstream ss;
-    ss << f.rdbuf();
-    return ss.str();
-}
 
 int main(int argc, char* argv[]) {
     Controller::SetActiveControllerInstance(&controller);
@@ -43,13 +34,12 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    //initialize vertex and fragment shaders
-    const char* vertex_shader_code = ReadFile(VERTEX_SHADER_PATH).c_str();
-    const char* fragment_shader_code = ReadFile(FRAGMENT_SHADER_PATH).c_str();
-    window_inst.InitializeShaders(vertex_shader_code, fragment_shader_code);
+    //shader initialization
+    Shader shader{VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH};
+    window_inst.SetShader(&shader);
+    window_inst.InitializeBuffers();
 
     //start rendering
-    window_inst.InitializeBuffers();
     window_inst.RegisterWindowCallbacks();
     glutMainLoop(); // never returns
 
