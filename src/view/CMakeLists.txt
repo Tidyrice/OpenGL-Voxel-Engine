@@ -10,6 +10,7 @@ target_link_libraries(view PRIVATE
     scene
     glm
     glad
+    stb
     ${OPENGL_LIBRARIES}
 )
 

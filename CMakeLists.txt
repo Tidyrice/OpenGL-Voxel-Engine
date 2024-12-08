@@ -22,7 +22,7 @@ set(LIBRARY_INCLUDE_DIRS
     ${LIBRARIES_PATH}/freeglut/include
     ${LIBRARIES_PATH}/glm/glm
     ${LIBRARIES_PATH}/glad/include
-)
+    ${LIBRARIES_PATH}/stb)
 
 # Include directories globally for all subdirectories
 include_directories(${LIBRARY_INCLUDE_DIRS})
@@ -31,4 +31,5 @@ include_directories(${LIBRARY_INCLUDE_DIRS})
 add_subdirectory(${LIBRARIES_PATH}/freeglut)
 add_subdirectory(${LIBRARIES_PATH}/glm)
 add_subdirectory(${LIBRARIES_PATH}/glad)
+add_subdirectory(${LIBRARIES_PATH}/stb)
 add_subdirectory(src)

@@ -8,11 +8,12 @@ class Shader {
     public:
         Shader(std::string vertex_shader_path, std::string fragment_shader_path);
         void UseShader() const;
+        GLuint GetShaderId() const;
 
     private:
         void InitializeShaders(const char* vertex_shader_src, const char* fragment_shader_src);
         std::string ReadFile(std::string filename);
-        GLuint shader_program_;
+        GLuint shader_id_;
 };
 
 #endif // SHADER_H

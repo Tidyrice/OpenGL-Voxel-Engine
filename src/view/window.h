@@ -9,7 +9,7 @@ class Scene;
 
 class Window {
     private:
-        Window() = default; //private constructor for singleton design pattern
+        Window(); //private constructor for singleton design pattern
         ~Window() = default;
 
     public:
@@ -44,6 +44,8 @@ class Window {
         int windowHeight_ = 0;
         Shader* shader_;
         Scene* scene_;
+
+        GLuint texture; // TODO: move this to a texture class
 };
 
 #endif // WINDOW_H

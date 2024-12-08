@@ -36,13 +36,13 @@ Shader::InitializeShaders(const char* vertex_shader_src, const char* fragment_sh
         std::cerr << "[ERROR]: Fragment shader compilation failed:\n" << infoLog << std::endl;
     }
 
-    shader_program_ = glCreateProgram();
-    glAttachShader(shader_program_, vertex_shader);
-    glAttachShader(shader_program_, fragment_shader);
-    glLinkProgram(shader_program_);
-    glGetProgramiv(shader_program_, GL_LINK_STATUS, &success);
+    shader_id_ = glCreateProgram();
+    glAttachShader(shader_id_, vertex_shader);
+    glAttachShader(shader_id_, fragment_shader);
+    glLinkProgram(shader_id_);
+    glGetProgramiv(shader_id_, GL_LINK_STATUS, &success);
     if (!success) {
-        glGetProgramInfoLog(shader_program_, 512, NULL, infoLog);
+        glGetProgramInfoLog(shader_id_, 512, NULL, infoLog);
         std::cerr << "[ERROR]: Shader program linking failed:\n" << infoLog << std::endl;
     }
     glDeleteShader(vertex_shader);
@@ -52,7 +52,13 @@ Shader::InitializeShaders(const char* vertex_shader_src, const char* fragment_sh
 void
 Shader::UseShader() const
 {
-    glUseProgram(shader_program_);
+    glUseProgram(shader_id_);
+}
+
+GLuint
+Shader::GetShaderId() const
+{
+    return shader_id_;
 }
 
 std::string
