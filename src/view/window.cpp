@@ -22,17 +22,26 @@ void Window::InitializeBuffers()
         // positions        // colors
         0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // bottom right
         -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // bottom left
-        0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f    // top 
-    };   
+        0.5f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f,    // top right
+        -0.5f,  0.5f, 0.0f,  1.0f, 1.0f, 1.0f    // top left
+    };
+
+    unsigned int indices[] = {
+        0, 1, 2,   // First triangle
+        2, 1, 3    // Second triangle
+    };
 
     glGenVertexArrays(1, &VAO_);
     glGenBuffers(1, &VBO_);
     glGenBuffers(1, &EBO_);
 
     glBindVertexArray(VAO_);
+
     glBindBuffer(GL_ARRAY_BUFFER, VBO_);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     // position attribute
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
@@ -84,7 +93,7 @@ void Window::HandleRenderScene()
     // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // FILL MODE
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // WIREFRAME MODE
     glBindVertexArray(VAO_);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     
     glutSwapBuffers();
 }
