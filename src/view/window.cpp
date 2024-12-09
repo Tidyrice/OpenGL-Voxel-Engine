@@ -6,6 +6,7 @@
 #include "shader.h"
 #include <iostream>
 #include <stb_image.h>
+#include "texture.h"
 
 Window::Window() {
     stbi_set_flip_vertically_on_load(true);
@@ -61,39 +62,8 @@ void Window::InitializeBuffers()
     glEnableVertexAttribArray(2);
 
     // texture
-    int width, height, nrChannels;
-    unsigned char* data = stbi_load(ASSETS_PATH "/textures/grass_side.png", &width, &height, &nrChannels, 0);
-    if (!data) {
-        std::cerr << "Failed to load texture" << std::endl;
-    }
-    else {
-        std::cout << "Texture loaded successfully" << std::endl;
-    }
-
-    glGenTextures(1, &texture);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    if (nrChannels == 3) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-    }
-    else if (nrChannels == 4) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    }
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    stbi_image_free(data);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    GLuint tex_0_uniform = glGetUniformLocation(shader_->GetShaderId(), "texture0");
-    shader_->UseShader();
-    glUniform1i(tex_0_uniform, 0);
+    tex = new Texture{ASSETS_PATH "/textures/grass_side.png", GL_TEXTURE_2D, GL_TEXTURE0};
+    tex->AssignTextureUnit(shader_, "texture0", 0);
 }
 
 void Window::RegisterWindowCallbacks() const
@@ -134,14 +104,13 @@ void Window::HandleRenderScene()
 
     shader_->UseShader();
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    tex->Bind();
 
     // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // FILL MODE
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // WIREFRAME MODE
+    
     glBindVertexArray(VAO_);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
 
     glutSwapBuffers();
 }

@@ -6,6 +6,7 @@
 
 class Shader;
 class Scene;
+class Texture;
 
 class Window {
     private:
@@ -13,6 +14,8 @@ class Window {
         ~Window() = default;
 
     public:
+        Texture* tex; // TODO: remove (this is leaked memory) -- only for testing
+
         static Window& getInstance() { //Meyer's singleton
             static Window instance;
             return instance;
@@ -44,8 +47,6 @@ class Window {
         int windowHeight_ = 0;
         Shader* shader_;
         Scene* scene_;
-
-        GLuint texture; // TODO: move this to a texture class
 };
 
 #endif // WINDOW_H
