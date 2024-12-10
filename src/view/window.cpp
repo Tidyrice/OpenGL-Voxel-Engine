@@ -7,6 +7,9 @@
 #include <iostream>
 #include <stb_image.h>
 #include "texture.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 Window::Window() {
     stbi_set_flip_vertically_on_load(true);
@@ -19,6 +22,16 @@ void Window::CreateAndInitializeWindow(int w, int h, int pos_x, int pos_y, std::
     windowId_ = glutCreateWindow(window_name.c_str());
 
     SetScene(s);
+
+    //initialize model matrix
+    model_ = glm::mat4(1.0f);
+
+    //initialize view matrix
+    view_ = glm::mat4(1.0f);
+    view_ = glm::translate(view_, glm::vec3(0.0f, 0.0f, -3.0f)); 
+
+    //initialize projection matrix
+    projection_ = glm::perspective(glm::radians(45.0f), (float)w/(float)h, 0.1f, 100.0f);
 }
 
 void Window::InitializeBuffers()

@@ -8,10 +8,13 @@ target_link_libraries(view PUBLIC
 target_link_libraries(view PRIVATE
     controller
     scene
-    glm
     glad
     stb
     ${OPENGL_LIBRARIES}
+)
+
+target_link_libraries(view PUBLIC
+    glm
 )
 
 # Include directories for this library

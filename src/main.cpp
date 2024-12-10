@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include <GL/freeglut.h>
 #include <iostream>
+#include <glm/glm.hpp>
 
 #include "config.h"
 #include "window.h"

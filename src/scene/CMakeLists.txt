@@ -2,11 +2,14 @@
 add_library(scene scene.cpp game_scene.cpp camera.cpp)
 
 # Link libraries required by the scene module
-target_link_libraries(scene PUBLIC
+target_link_libraries(scene PRIVATE
     view
     freeglut_static
-    glm
     ${OPENGL_LIBRARIES}
+)
+
+target_link_libraries(scene PUBLIC
+    glm
 )
 
 # Include directories for this library

@@ -3,6 +3,7 @@
 
 #include <string>
 #include <GL/freeglut.h>
+#include <glm/glm.hpp>
 
 class Shader;
 class Scene;
@@ -41,7 +42,10 @@ class Window {
         static void WindowResizeCallback(int w, int h);
         void HandleResize(int w, int h);
 
+        /* PRIVATE MEMBERS */
         GLuint VAO_, VBO_, EBO_;
+        glm::mat4 model_, view_, projection_;
+
         int windowId_ = -1;
         int windowWidth_ = 0;
         int windowHeight_ = 0;
