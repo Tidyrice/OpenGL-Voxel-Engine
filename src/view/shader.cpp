@@ -61,6 +61,13 @@ Shader::GetShaderId() const
     return shader_id_;
 }
 
+void
+Shader::SetMat4(const std::string &name, const glm::mat4 &mat) const
+{
+    GLuint loc = glGetUniformLocation(shader_id_, name.c_str());
+    glUniformMatrix4fv(loc, 1, GL_FALSE, &mat[0][0]);
+}
+
 std::string
 Shader::ReadFile(std::string filename) {
     std::cout<<filename<<std::endl;

@@ -10,21 +10,16 @@ class Scene;
 class Texture;
 
 class Window {
-    private:
-        Window(); //private constructor for singleton design pattern
-        ~Window() = default;
-
     public:
         Texture* tex; // TODO: remove (this is leaked memory) -- only for testing
 
-        static Window& getInstance() { //Meyer's singleton
-            static Window instance;
-            return instance;
-        }
+        static Window* GetActiveWindow(Window* instance = nullptr);
 
-        void CreateAndInitializeWindow(int w, int h, int pos_x, int pos_y, std::string window_name, Scene* s);
+        Window(int w, int h, int pos_x, int pos_y, std::string window_name, Scene* s);
+        ~Window() = default;
+
         void InitializeBuffers();
-        void RegisterWindowCallbacks() const;
+        void RegisterWindowCallbacks();
 
         inline void SetShader(Shader* s) { shader_ = s; }
         inline void SetScene(Scene* s) { scene_ = s; }
@@ -42,13 +37,17 @@ class Window {
         static void WindowResizeCallback(int w, int h);
         void HandleResize(int w, int h);
 
+        void InitializeModelMatrix();
+        void InitializeViewMatrix();
+        void InitializeProjectionMatrix();
+
         /* PRIVATE MEMBERS */
         GLuint VAO_, VBO_, EBO_;
         glm::mat4 model_, view_, projection_;
 
-        int windowId_ = -1;
-        int windowWidth_ = 0;
-        int windowHeight_ = 0;
+        int window_id_ = -1;
+        int window_width_ = 0;
+        int window_height_ = 0;
         Shader* shader_;
         Scene* scene_;
 };

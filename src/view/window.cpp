@@ -11,26 +11,36 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-Window::Window() {
-    stbi_set_flip_vertically_on_load(true);
+Window* Window::GetActiveWindow(Window* instance) //static method
+{
+    static Window* active_instance = nullptr;
+    if (instance != nullptr) {
+        active_instance = instance;
+    }
+    return active_instance;
 }
 
-void Window::CreateAndInitializeWindow(int w, int h, int pos_x, int pos_y, std::string window_name, Scene* s)
-{
+Window::Window(int w, int h, int pos_x, int pos_y, std::string window_name, Scene* s) {
+    stbi_set_flip_vertically_on_load(true);
+
     glutInitWindowSize(w, h);
+    window_width_ = w;
+    window_height_ = h;
     glutInitWindowPosition(pos_x, pos_y);
-    windowId_ = glutCreateWindow(window_name.c_str());
+    window_id_ = glutCreateWindow(window_name.c_str());
 
     SetScene(s);
 
     //initialize model matrix
     model_ = glm::mat4(1.0f);
+    model_ = glm::rotate(model_, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
     //initialize view matrix
     view_ = glm::mat4(1.0f);
     view_ = glm::translate(view_, glm::vec3(0.0f, 0.0f, -3.0f)); 
 
     //initialize projection matrix
+    projection_ = glm::mat4(1.0f);
     projection_ = glm::perspective(glm::radians(45.0f), (float)w/(float)h, 0.1f, 100.0f);
 }
 
@@ -79,13 +89,18 @@ void Window::InitializeBuffers()
     tex->AssignTextureUnit(shader_, "texture0", 0);
 }
 
-void Window::RegisterWindowCallbacks() const
+void Window::RegisterWindowCallbacks()
 {
-    if (windowId_ == -1) {
+    if (window_id_ == -1) {
         std::cerr << "Window::RegisterWindowCallbacks(): window not created yet" << std::endl;
         return;
     }
 
+    //generate and send projection matrix to shader (set here since projecion matrix is constant)
+    InitializeProjectionMatrix();
+    shader_->SetMat4("projection", projection_);
+
+    //handle rendering
     glutDisplayFunc(RenderSceneCallback);
     glutReshapeFunc(WindowResizeCallback);
     glutIdleFunc(RenderSceneCallback);
@@ -107,7 +122,7 @@ void Window::Clear()
 
 void Window::RenderSceneCallback()
 {
-	getInstance().HandleRenderScene();
+	GetActiveWindow()->HandleRenderScene();
 }
 
 void Window::HandleRenderScene()
@@ -125,17 +140,43 @@ void Window::HandleRenderScene()
     glBindVertexArray(VAO_);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
+    //generate and send model matrix to shader
+    InitializeModelMatrix();
+    shader_->SetMat4("model", model_);
+
+    //generate send view matrix to shader
+    InitializeViewMatrix();
+    shader_->SetMat4("view", view_);
+
     glutSwapBuffers();
 }
 
 void Window::WindowResizeCallback(int w, int h) //this is needed because GLUT requires non-member or static member functions
 {
-    getInstance().HandleResize(w, h);
+    GetActiveWindow()->HandleResize(w, h);
 }
 
 void Window::HandleResize(int w, int h)
 {
     glViewport(0, 0, w, h);
-    windowWidth_ = w;
-    windowHeight_ = h;
+    window_width_ = w;
+    window_height_ = h;
+}
+
+void Window::InitializeModelMatrix()
+{
+    model_ = glm::mat4(1.0f);
+    model_ = glm::rotate(model_, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+}
+
+void Window::InitializeViewMatrix()
+{
+    view_ = glm::mat4(1.0f);
+    view_ = glm::translate(view_, glm::vec3(0.0f, 0.0f, -3.0f));
+}
+
+void Window::InitializeProjectionMatrix()
+{
+    projection_ = glm::mat4(1.0f);
+    projection_ = glm::perspective(glm::radians(45.0f), (float)window_width_/(float)window_height_, 0.1f, 100.0f);
 }

@@ -9,25 +9,21 @@
 #include "game_controller.h"
 #include "game_scene.h"
 
-Window& window_inst = Window::getInstance();
-GameScene scene{};
-GameController controller{&scene};
-
 int main(int argc, char* argv[]) {
-    Controller::SetActiveControllerInstance(&controller);
+    GameScene scene{};
+    GameController controller{&scene};
+    Controller::GetActiveController(&controller); // set the active controller
     
-    //GLUT and window initialization
+    //GLUT initialization
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGBA|GLUT_DEPTH);
     glutInitContextVersion(3, 3); // OpenGL 3.3
     glutInitContextProfile(GLUT_CORE_PROFILE);
     glutInitContextFlags(GLUT_FORWARD_COMPATIBLE);
-    window_inst.CreateAndInitializeWindow(WINDOW_WIDTH,
-                                          WINDOW_HEIGHT,
-                                          INITIAL_WINDOW_POSITION_X,
-                                          INITIAL_WINDOW_POSITION_Y,
-                                          WINDOW_NAME,
-                                          &scene);
+
+    //window initialization
+    Window window{WINDOW_WIDTH, WINDOW_HEIGHT, INITIAL_WINDOW_POSITION_X, INITIAL_WINDOW_POSITION_Y, WINDOW_NAME, &scene};
+    Window::GetActiveWindow(&window); // set the active window
 
     //GLAD initialization
     if (!gladLoadGL()) {
@@ -37,11 +33,11 @@ int main(int argc, char* argv[]) {
 
     //shader initialization
     Shader shader{VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH};
-    window_inst.SetShader(&shader);
-    window_inst.InitializeBuffers();
+    window.SetShader(&shader);
+    window.InitializeBuffers();
 
     //start rendering
-    window_inst.RegisterWindowCallbacks();
+    window.RegisterWindowCallbacks();
     glutMainLoop(); // never returns
 
     return 0;
