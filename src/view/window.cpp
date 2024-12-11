@@ -30,29 +30,53 @@ Window::Window(int w, int h, int pos_x, int pos_y, std::string window_name, Scen
     window_id_ = glutCreateWindow(window_name.c_str());
 
     SetScene(s);
-
-    //initialize model matrix
-    model_ = glm::mat4(1.0f);
-    model_ = glm::rotate(model_, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-
-    //initialize view matrix
-    view_ = glm::mat4(1.0f);
-    view_ = glm::translate(view_, glm::vec3(0.0f, 0.0f, -3.0f)); 
-
-    //initialize projection matrix
-    projection_ = glm::mat4(1.0f);
-    projection_ = glm::perspective(glm::radians(45.0f), (float)w/(float)h, 0.1f, 100.0f);
 }
 
 void Window::InitializeBuffers()
 {
     //some temporary data
     float vertices[] = {
-        // positions         // colors           // texture coords
-        0.5f, -0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   0.0f, 0.0f,  // bottom left
-        0.5f,  0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   1.0f, 1.0f,  // top right
-        -0.5f,  0.5f, 0.0f,  1.0f, 1.0f, 1.0f,   0.0f, 1.0f  // top left
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
 
     unsigned int indices[] = {
@@ -73,16 +97,12 @@ void Window::InitializeBuffers()
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    // color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
     // textureCoords attribute
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     // texture
     tex = new Texture{ASSETS_PATH "/textures/grass_side.png", GL_TEXTURE_2D, GL_TEXTURE0};
@@ -97,7 +117,7 @@ void Window::RegisterWindowCallbacks()
     }
 
     //generate and send projection matrix to shader (set here since projecion matrix is constant)
-    InitializeProjectionMatrix();
+    GenerateProjectionMatrix();
     shader_->SetMat4("projection", projection_);
 
     //handle rendering
@@ -128,7 +148,7 @@ void Window::RenderSceneCallback()
 void Window::HandleRenderScene()
 {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     shader_->UseShader();
 
@@ -136,17 +156,19 @@ void Window::HandleRenderScene()
 
     // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // FILL MODE
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // WIREFRAME MODE
-    
-    glBindVertexArray(VAO_);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     //generate and send model matrix to shader
-    InitializeModelMatrix();
+    GenerateModelMatrix();
     shader_->SetMat4("model", model_);
 
     //generate send view matrix to shader
-    InitializeViewMatrix();
+    GenerateViewMatrix();
     shader_->SetMat4("view", view_);
+
+    //render
+    glBindVertexArray(VAO_);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     glutSwapBuffers();
 }
@@ -163,19 +185,20 @@ void Window::HandleResize(int w, int h)
     window_height_ = h;
 }
 
-void Window::InitializeModelMatrix()
+void Window::GenerateModelMatrix()
 {
     model_ = glm::mat4(1.0f);
-    model_ = glm::rotate(model_, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    // model_ = glm::rotate(model_, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    model_ = glm::rotate(model_, (float)glutGet(GLUT_ELAPSED_TIME)/1000, glm::vec3(0.5f, 1.0f, 0.0f));
 }
 
-void Window::InitializeViewMatrix()
+void Window::GenerateViewMatrix()
 {
     view_ = glm::mat4(1.0f);
     view_ = glm::translate(view_, glm::vec3(0.0f, 0.0f, -3.0f));
 }
 
-void Window::InitializeProjectionMatrix()
+void Window::GenerateProjectionMatrix()
 {
     projection_ = glm::mat4(1.0f);
     projection_ = glm::perspective(glm::radians(45.0f), (float)window_width_/(float)window_height_, 0.1f, 100.0f);

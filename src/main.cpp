@@ -13,6 +13,7 @@ int main(int argc, char* argv[]) {
     GameScene scene{};
     GameController controller{&scene};
     Controller::GetActiveController(&controller); // set the active controller
+
     
     //GLUT initialization
     glutInit(&argc, argv);
@@ -30,6 +31,9 @@ int main(int argc, char* argv[]) {
         std::cerr << "[ERROR]: Failed to initialize GLAD" << std::endl;
         return -1;
     }
+
+    //GL configuration
+    glEnable(GL_DEPTH_TEST);
 
     //shader initialization
     Shader shader{VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH};

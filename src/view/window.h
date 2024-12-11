@@ -37,9 +37,9 @@ class Window {
         static void WindowResizeCallback(int w, int h);
         void HandleResize(int w, int h);
 
-        void InitializeModelMatrix();
-        void InitializeViewMatrix();
-        void InitializeProjectionMatrix();
+        void GenerateModelMatrix();
+        void GenerateViewMatrix();
+        void GenerateProjectionMatrix();
 
         /* PRIVATE MEMBERS */
         GLuint VAO_, VBO_, EBO_;

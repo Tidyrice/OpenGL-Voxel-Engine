@@ -6,7 +6,7 @@
 
 Texture::Texture(const std::string& texture_path, GLenum texture_type, GLenum slot) : type_{texture_type}
 {
-    unsigned char* data = stbi_load(ASSETS_PATH "/textures/grass_side.png", &width_, &height_, &nr_channels_, 0);
+    unsigned char* data = stbi_load(texture_path.c_str(), &width_, &height_, &nr_channels_, 0);
     if (!data) {
         std::cerr << "Texture::Texture(): failed to load texture" << std::endl;
     }
