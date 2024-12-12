@@ -6,12 +6,12 @@
 #include "config.h"
 #include "window.h"
 #include "shader.h"
-#include "game_controller.h"
+#include "controller.h"
 #include "game_scene.h"
 
 int main(int argc, char* argv[]) {
     GameScene scene{};
-    GameController controller{&scene};
+    Controller controller{&scene};
     Controller::GetActiveController(&controller); // set the active controller
 
     

@@ -1,9 +1,10 @@
 # Create a library for the controller module
-add_library(controller controller.cpp game_controller.cpp)
+add_library(controller controller.cpp)
 
 # Link libraries required by the controller module
 target_link_libraries(controller PRIVATE
     view
+    scene
     freeglut_static
     ${OPENGL_LIBRARIES}
 )

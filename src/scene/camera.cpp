@@ -1,27 +1,65 @@
 #include "camera.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "window.h"
 
-glm::mat4 Camera::GetViewMatrix()
+void
+Camera::GenerateViewMatrix()
 {
-    return glm::lookAt(camera_pos, camera_pos + camera_front, camera_up);
+    view_ = glm::lookAt(camera_pos_, camera_pos_ + camera_front_, world_up_);
 }
 
-void Camera::MoveForward()
+void
+Camera::GenerateProjectionMatrix(int width, int height)
 {
-    camera_pos += cameraSpeed * camera_front;
+    projection_ = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
 }
 
-void Camera::MoveBackward()
+const glm::mat4&
+Camera::GetViewMatrix()
 {
-    camera_pos -= cameraSpeed * camera_front;
+    return view_;
 }
 
-void Camera::MoveLeft()
+const glm::mat4&
+Camera::GetProjectionMatrix()
 {
-    camera_pos -= glm::normalize(glm::cross(camera_front, camera_up)) * cameraSpeed;
+    return projection_;
 }
 
-void Camera::MoveRight()
+void
+Camera::MoveForward()
 {
-    camera_pos += glm::normalize(glm::cross(camera_front, camera_up)) * cameraSpeed;
+    camera_pos_ += GetNormalizedCameraSpeed() * camera_front_;
+}
+
+void
+Camera::MoveBackward()
+{
+    camera_pos_ -= GetNormalizedCameraSpeed() * camera_front_;
+}
+
+void
+Camera::MoveLeft()
+{
+    camera_pos_ -= glm::normalize(glm::cross(camera_front_, camera_up_)) * GetNormalizedCameraSpeed();
+}
+
+void
+Camera::MoveRight()
+{
+    camera_pos_ += glm::normalize(glm::cross(camera_front_, camera_up_)) * GetNormalizedCameraSpeed();
+}
+
+float
+Camera::GetDeltaTime() const
+{
+    return Window::GetActiveWindow()->GetDeltaTime();
+}
+
+float
+Camera::GetNormalizedCameraSpeed() const
+{
+    return camera_speed_ * GetDeltaTime();
 }

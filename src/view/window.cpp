@@ -8,10 +8,9 @@
 #include <stb_image.h>
 #include "texture.h"
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
-Window* Window::GetActiveWindow(Window* instance) //static method
+Window*
+Window::GetActiveWindow(Window* instance) //static method
 {
     static Window* active_instance = nullptr;
     if (instance != nullptr) {
@@ -32,7 +31,8 @@ Window::Window(int w, int h, int pos_x, int pos_y, std::string window_name, Scen
     SetScene(s);
 }
 
-void Window::InitializeBuffers()
+void
+Window::InitializeBuffers()
 {
     //some temporary data
     float vertices[] = {
@@ -109,16 +109,16 @@ void Window::InitializeBuffers()
     tex->AssignTextureUnit(shader_, "texture0", 0);
 }
 
-void Window::RegisterWindowCallbacks()
+void
+Window::RegisterWindowCallbacks()
 {
     if (window_id_ == -1) {
         std::cerr << "Window::RegisterWindowCallbacks(): window not created yet" << std::endl;
         return;
     }
 
-    //generate and send projection matrix to shader (set here since projecion matrix is constant)
-    GenerateProjectionMatrix();
-    shader_->SetMat4("projection", projection_);
+    //send projection matrix to shader (set here since projecion matrix is constant)
+    shader_->SetMat4("projection", GetProjectionMatrix());
 
     //handle rendering
     glutDisplayFunc(RenderSceneCallback);
@@ -130,7 +130,8 @@ void Window::RegisterWindowCallbacks()
     glutSpecialFunc(Controller::ProcessSpecialKeysCallback);
 }
 
-void Window::Clear()
+void
+Window::Clear()
 {
     //clears all colours
     GLclampf Red = 0.0f, Green = 0.0f, Blue = 0.0f, Alpha = 0.0f;
@@ -140,7 +141,8 @@ void Window::Clear()
 
 // ---- PRIVATE METHODS ---- //
 
-void Window::RenderSceneCallback()
+void
+Window::RenderSceneCallback()
 {
 	GetActiveWindow()->HandleRenderScene();
 }
@@ -157,13 +159,11 @@ void Window::HandleRenderScene()
     // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // FILL MODE
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // WIREFRAME MODE
 
-    //generate and send model matrix to shader
-    GenerateModelMatrix();
-    shader_->SetMat4("model", model_);
+    //send model matrix to shader
+    shader_->SetMat4("model", GetModelMatrix());
 
-    //generate send view matrix to shader
-    GenerateViewMatrix();
-    shader_->SetMat4("view", view_);
+    //send view matrix to shader
+    shader_->SetMat4("view", GetViewMatrix());
 
     //render
     glBindVertexArray(VAO_);
@@ -171,9 +171,11 @@ void Window::HandleRenderScene()
     // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     glutSwapBuffers();
+    UpdateDeltaTime();
 }
 
-void Window::WindowResizeCallback(int w, int h) //this is needed because GLUT requires non-member or static member functions
+void
+Window::WindowResizeCallback(int w, int h) //this is needed because GLUT requires non-member or static member functions
 {
     GetActiveWindow()->HandleResize(w, h);
 }
@@ -185,21 +187,28 @@ void Window::HandleResize(int w, int h)
     window_height_ = h;
 }
 
-void Window::GenerateModelMatrix()
+const glm::mat4&
+Window::GetModelMatrix() const
 {
-    model_ = glm::mat4(1.0f);
-    // model_ = glm::rotate(model_, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    model_ = glm::rotate(model_, (float)glutGet(GLUT_ELAPSED_TIME)/1000, glm::vec3(0.5f, 1.0f, 0.0f));
+    return scene_->GetModelMatrix();
 }
 
-void Window::GenerateViewMatrix()
+const glm::mat4&
+Window::GetViewMatrix() const
 {
-    view_ = glm::mat4(1.0f);
-    view_ = glm::translate(view_, glm::vec3(0.0f, 0.0f, -3.0f));
+    return scene_->GetViewMatrix();
 }
 
-void Window::GenerateProjectionMatrix()
+const glm::mat4&
+Window::GetProjectionMatrix() const
 {
-    projection_ = glm::mat4(1.0f);
-    projection_ = glm::perspective(glm::radians(45.0f), (float)window_width_/(float)window_height_, 0.1f, 100.0f);
+    return scene_->GetProjectionMatrix();
+}
+
+void
+Window::UpdateDeltaTime()
+{
+    float current_frame = glutGet(GLUT_ELAPSED_TIME);
+    delta_time_ = current_frame - last_frame_;
+    last_frame_ = current_frame;
 }
