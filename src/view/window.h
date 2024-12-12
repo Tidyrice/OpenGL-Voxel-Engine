@@ -27,7 +27,7 @@ class Window {
         inline int GetWindowWidth() const { return window_width_; }
         inline int GetWindowHeight() const { return window_height_; }
 
-        inline float GetDeltaTime() const { return delta_time_; }
+        inline float GetDeltaTimeMs() const { return delta_time_; }
 
         void Clear();
 

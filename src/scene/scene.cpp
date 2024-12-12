@@ -2,8 +2,13 @@
 #include "camera.h"
 #include "window.h"
 
-Scene::Scene() = default;
 Scene::~Scene() = default; //must define pure virtual destructor
+
+void
+Scene::Update()
+{
+    UpdatePerFrame();
+}
 
 const glm::mat4&
 Scene::GetModelMatrix() const
@@ -14,17 +19,19 @@ Scene::GetModelMatrix() const
 const glm::mat4&
 Scene::GetViewMatrix() const
 {
-    return camera->GetViewMatrix();
+    camera_->GenerateViewMatrix();
+    return camera_->GetViewMatrix();
 }
 
 const glm::mat4&
 Scene::GetProjectionMatrix() const
 {
-    return camera->GetProjectionMatrix();
+    camera_->GenerateProjectionMatrix(Window::GetActiveWindow()->GetWindowWidth(), Window::GetActiveWindow()->GetWindowHeight());
+    return camera_->GetProjectionMatrix();
 }
 
 float
-Scene::GetDeltaTime() const
+Scene::GetDeltaTimeMs() const
 {
-    return Window::GetActiveWindow()->GetDeltaTime();
+    return Window::GetActiveWindow()->GetDeltaTimeMs();
 }

@@ -1,23 +1,43 @@
 #include "game_scene.h"
 #include "camera.h"
 #include <GL/freeglut.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include "game_config.h"
 
-void GameScene::HandleWKeyPress()
+GameScene::GameScene(): Scene{}
 {
-    camera->MoveForward();
+    camera_ = std::make_unique<Camera>(CAMERA_SPEED);
+    model_ = glm::mat4(1.0f);
 }
 
-void GameScene::HandleAKeyPress()
+void
+GameScene::UpdatePerFrame()
 {
-    camera->MoveLeft();
+    model_ = glm::rotate(model_, GetDeltaTimeMs()/1000.0f * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f)); 
 }
 
-void GameScene::HandleSKeyPress()
+void
+GameScene::HandleWKeyPress()
 {
-    camera->MoveBackward();
+    camera_->MoveForward();
 }
 
-void GameScene::HandleDKeyPress()
+void
+GameScene::HandleAKeyPress()
 {
-    camera->MoveRight();
+    camera_->MoveLeft();
+}
+
+void
+GameScene::HandleSKeyPress()
+{
+    camera_->MoveBackward();
+}
+
+void 
+GameScene::HandleDKeyPress()
+{
+    camera_->MoveRight();
 }

@@ -5,7 +5,7 @@
 
 class GameScene : public Scene {
     public:
-        GameScene() = default;
+        GameScene();
         ~GameScene() = default;
 
         void HandleWKeyPress() override;
@@ -14,6 +14,7 @@ class GameScene : public Scene {
         void HandleDKeyPress() override;
 
     private:
+        void UpdatePerFrame() override;
 };
 
 #endif // GAME_SCENE_H

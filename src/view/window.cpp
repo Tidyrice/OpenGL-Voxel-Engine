@@ -118,6 +118,11 @@ Window::RegisterWindowCallbacks()
     }
 
     //send projection matrix to shader (set here since projecion matrix is constant)
+    if (shader_ == nullptr) {
+        std::cerr << "Window::RegisterWindowCallbacks(): shader not set" << std::endl;
+        return;
+    }
+    
     shader_->SetMat4("projection", GetProjectionMatrix());
 
     //handle rendering
@@ -149,6 +154,9 @@ Window::RenderSceneCallback()
 
 void Window::HandleRenderScene()
 {
+    scene_->Update(); //let scene know that there is a new frame
+
+    //clear the screen
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

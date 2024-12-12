@@ -5,7 +5,7 @@
 
 class Camera {
     public:
-        Camera() = default;
+        Camera(float speed);
         ~Camera() = default;
 
         void GenerateViewMatrix();
@@ -19,7 +19,7 @@ class Camera {
         void MoveRight();
 
     private:
-        float GetDeltaTime() const;
+        float GetDeltaTimeMs() const;
         float GetNormalizedCameraSpeed() const; //normalizes camera speed based on the current frame rate (delta time)
 
         const float camera_speed_ = 2.5f;
@@ -27,9 +27,8 @@ class Camera {
         glm::vec3 camera_target_ = glm::vec3(0.0f, 0.0f, 0.0f);
         glm::vec3 camera_front_ = glm::normalize(camera_target_ - camera_pos_); // points the direction camera is facing
         glm::vec3 camera_up_ = glm::vec3(0.0f, 1.0f, 0.0f); // the up vector of the camera
-        glm::vec3 world_up_ = glm::vec3(0.0f, 1.0f, 0.0f);
 
-        glm::mat4 view_, projection_; //view and projection matricies
+        glm::mat4 view_, projection_;
 };
 
 #endif // CAMERA_H

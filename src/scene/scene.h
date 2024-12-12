@@ -9,8 +9,10 @@ class Camera;
 
 class Scene {
     public:
-        Scene();
+        Scene() = default; //subclass MUST initialize camera_ in its constructor
         virtual ~Scene() = 0;
+
+        void Update(); //called every frame
 
         const virtual glm::mat4& GetModelMatrix() const; //temporary. Need to embed this information in data sent to Window somehow for each block
         const glm::mat4& GetViewMatrix() const;
@@ -23,11 +25,12 @@ class Scene {
 
 
     protected:
-        float GetDeltaTime() const;
+        virtual void UpdatePerFrame() = 0; //children overrides this. Called in Update()
+        float GetDeltaTimeMs() const;
 
         GLuint VAO_, VBO_, EBO_;
-        glm::mat4 model_ = glm::mat4(1.0f); //model matrix
-        std::unique_ptr<Camera> camera;
+        glm::mat4 model_; //model matrix
+        std::unique_ptr<Camera> camera_;
 };
 
 #endif // SCENE_H

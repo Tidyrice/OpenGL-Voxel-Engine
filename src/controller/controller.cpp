@@ -1,5 +1,6 @@
 #include "controller.h"
 #include "scene.h"
+#include <iostream>
 
 Controller*
 Controller::GetActiveController(Controller* instance)
@@ -35,15 +36,19 @@ Controller::HandleNormalKeys(unsigned char key, int x, int y)
             exit(0);
             break;
         case 'w':
+            std::cout << "w key pressed" << std::endl;
             scene_->HandleWKeyPress();
             break;
         case 'a':
+            std::cout << "a key pressed" << std::endl;
             scene_->HandleAKeyPress();
             break;
         case 's':
+            std::cout << "s key pressed" << std::endl;
             scene_->HandleSKeyPress();
             break;
         case 'd':
+            std::cout << "d key pressed" << std::endl;
             scene_->HandleDKeyPress();
             break;
         default:
