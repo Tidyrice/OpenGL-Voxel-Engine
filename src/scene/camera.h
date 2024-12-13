@@ -5,30 +5,37 @@
 
 class Camera {
     public:
-        Camera(float speed);
+        Camera(float speed, float sensitity);
         ~Camera() = default;
 
-        void GenerateViewMatrix();
-        void GenerateProjectionMatrix(int width, int height);
-        const glm::mat4& GetViewMatrix();
-        const glm::mat4& GetProjectionMatrix();
+        glm::mat4 GetViewMatrix();
+        glm::mat4 GetProjectionMatrix(int width, int height);
 
         void MoveForward();
         void MoveBackward();
         void MoveLeft();
         void MoveRight();
+        void HandleMouseMovement(int x, int y);
 
     private:
+        void UpdateCameraVectors();
         float GetDeltaTimeMs() const;
         float GetNormalizedCameraSpeed() const; //normalizes camera speed based on the current frame rate (delta time)
+        void PrintCameraVectors() const;
 
-        const float camera_speed_ = 2.5f;
-        glm::vec3 camera_pos_ = glm::vec3(0.0f, 0.0f, 3.0f);
-        glm::vec3 camera_target_ = glm::vec3(0.0f, 0.0f, 0.0f);
-        glm::vec3 camera_front_ = glm::normalize(camera_target_ - camera_pos_); // points the direction camera is facing
+        float speed_;
+        float sensitivity_;
+
+        glm::vec3 camera_pos_;
+        glm::vec3 camera_front_; // points the direction camera is facing
         glm::vec3 camera_up_ = glm::vec3(0.0f, 1.0f, 0.0f); // the up vector of the camera
+        
+        float yaw_; // yaw zero points to the right
+        float pitch_;
 
-        glm::mat4 view_, projection_;
+        bool first_mouse_movement_ = true;
+        float last_x_; // previous x position for the mouse
+        float last_y_; // previous y position for the mouse
 };
 
 #endif // CAMERA_H

@@ -29,50 +29,27 @@ Controller::ProcessSpecialKeysCallback(int key, int x, int y)
 }
 
 void
+Controller::ProcessMouseMovementCallback(int x, int y)
+{
+    if (GetActiveController()) {
+        GetActiveController()->HandleMouseMovement(x, y);
+    }
+}
+
+void
 Controller::HandleNormalKeys(unsigned char key, int x, int y)
 {
-    switch (key) {
-        case 27: //escape key
-            exit(0);
-            break;
-        case 'w':
-            std::cout << "w key pressed" << std::endl;
-            scene_->HandleWKeyPress();
-            break;
-        case 'a':
-            std::cout << "a key pressed" << std::endl;
-            scene_->HandleAKeyPress();
-            break;
-        case 's':
-            std::cout << "s key pressed" << std::endl;
-            scene_->HandleSKeyPress();
-            break;
-        case 'd':
-            std::cout << "d key pressed" << std::endl;
-            scene_->HandleDKeyPress();
-            break;
-        default:
-            break;
-    }
+    scene_->HandleNormalKeys(key, x, y);
 }
 
 void
 Controller::HandleSpecialKeys(int key, int x, int y)
 {
-    switch (key) {
-        case GLUT_KEY_UP:
-            scene_->HandleWKeyPress(); //using these for now
-            break;
-        case GLUT_KEY_LEFT:
-            scene_->HandleAKeyPress();
-            break;
-        case GLUT_KEY_DOWN:
-            scene_->HandleSKeyPress();
-            break;
-        case GLUT_KEY_RIGHT:
-            scene_->HandleDKeyPress();
-            break;
-        default:
-            break;
-    }
+    
+}
+
+void
+Controller::HandleMouseMovement(int x, int y)
+{
+    scene_->HandleMouseMovement(x, y);
 }

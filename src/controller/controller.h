@@ -15,10 +15,12 @@ class Controller {
 
         static void ProcessNormalKeysCallback(unsigned char key, int x, int y);
         static void ProcessSpecialKeysCallback(int key, int x, int y);
+        static void ProcessMouseMovementCallback(int x, int y);
 
     private:
         void HandleNormalKeys(unsigned char key, int x, int y) ;
         void HandleSpecialKeys(int key, int x, int y);
+        void HandleMouseMovement(int x, int y);
 
         Scene* scene_;
 };

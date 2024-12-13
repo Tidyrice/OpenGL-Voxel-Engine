@@ -2,5 +2,6 @@
 #define GAME_CONFIG_H
 
 #define CAMERA_SPEED 2.5f
+#define CAMERA_SENSITIVITY 0.1f
 
 #endif // GAME_CONFIG_H

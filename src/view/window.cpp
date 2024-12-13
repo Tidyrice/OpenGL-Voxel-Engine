@@ -133,6 +133,10 @@ Window::RegisterWindowCallbacks()
     //handle input
     glutKeyboardFunc(Controller::ProcessNormalKeysCallback);
     glutSpecialFunc(Controller::ProcessSpecialKeysCallback);
+
+    //handle mouse input
+    glutMotionFunc(Controller::ProcessMouseMovementCallback);
+    glutPassiveMotionFunc(Controller::ProcessMouseMovementCallback);
 }
 
 void
@@ -195,19 +199,19 @@ void Window::HandleResize(int w, int h)
     window_height_ = h;
 }
 
-const glm::mat4&
+const glm::mat4
 Window::GetModelMatrix() const
 {
     return scene_->GetModelMatrix();
 }
 
-const glm::mat4&
+const glm::mat4
 Window::GetViewMatrix() const
 {
     return scene_->GetViewMatrix();
 }
 
-const glm::mat4&
+const glm::mat4
 Window::GetProjectionMatrix() const
 {
     return scene_->GetProjectionMatrix();

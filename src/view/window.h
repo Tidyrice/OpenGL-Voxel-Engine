@@ -42,9 +42,9 @@ class Window {
         static void WindowResizeCallback(int w, int h);
         void HandleResize(int w, int h);
 
-        const glm::mat4& GetModelMatrix() const;
-        const glm::mat4& GetViewMatrix() const;
-        const glm::mat4& GetProjectionMatrix() const;
+        const glm::mat4 GetModelMatrix() const;
+        const glm::mat4 GetViewMatrix() const;
+        const glm::mat4 GetProjectionMatrix() const;
 
         void UpdateDeltaTime();
 

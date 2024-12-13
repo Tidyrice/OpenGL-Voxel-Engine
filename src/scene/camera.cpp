@@ -4,60 +4,100 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "window.h"
 #include <iostream>
+#include <GL/freeglut.h>
 
-Camera::Camera(float speed) : camera_speed_{speed}
+Camera::Camera(float speed, float sensitity) : speed_{speed}, sensitivity_{sensitity}
 {
-
+    camera_pos_ = glm::vec3(0.0f, 0.0f, 3.0f);
+    yaw_ = -90.0f;
+    pitch_ = 0.0f;
 }
 
-void
-Camera::GenerateViewMatrix()
-{
-    view_ = glm::mat4(1.0f);
-    view_ = glm::lookAt(camera_pos_, camera_pos_ + camera_front_, camera_up_);
-}
-
-void
-Camera::GenerateProjectionMatrix(int width, int height)
-{
-    projection_ = glm::mat4(1.0f);
-    projection_ = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
-}
-
-const glm::mat4&
+glm::mat4
 Camera::GetViewMatrix()
 {
-    return view_;
+    return glm::lookAt(camera_pos_, camera_pos_ + camera_front_, camera_up_);
 }
 
-const glm::mat4&
-Camera::GetProjectionMatrix()
+glm::mat4
+Camera::GetProjectionMatrix(int width, int height)
 {
-    return projection_;
+    return glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
 }
 
 void
 Camera::MoveForward()
 {
     camera_pos_ += GetNormalizedCameraSpeed() * camera_front_;
+    UpdateCameraVectors();
 }
 
 void
 Camera::MoveBackward()
 {
     camera_pos_ -= GetNormalizedCameraSpeed() * camera_front_;
+    UpdateCameraVectors();
 }
 
 void
 Camera::MoveLeft()
 {
     camera_pos_ -= glm::normalize(glm::cross(camera_front_, camera_up_)) * GetNormalizedCameraSpeed();
+    UpdateCameraVectors();
 }
 
 void
 Camera::MoveRight()
 {
     camera_pos_ += glm::normalize(glm::cross(camera_front_, camera_up_)) * GetNormalizedCameraSpeed();
+    UpdateCameraVectors();
+}
+
+void
+Camera::HandleMouseMovement(int x, int y)
+{
+    if (first_mouse_movement_) { //this check is needed otherwise camera will jump when mouse first comes into frame
+        last_x_ = x;
+        last_y_ = y;
+        first_mouse_movement_ = false;
+        return;
+    }
+
+    //TODO: need a check to see if mouse is outside of window, the reset the bool
+
+    //difference in mouse position
+    float x_offset = (x - last_x_) * sensitivity_;
+    float y_offset = (last_y_ - y) * sensitivity_; // reversed since y-coordinates range from bottom to top
+
+    last_x_ = x;
+    last_y_ = y;
+
+    //update camera angles
+    yaw_ += x_offset;
+    pitch_ += y_offset;
+
+    //check bounds for pitch
+    if (pitch_ > 89.0f) {
+        pitch_ = 89.0f;
+    }
+    if (pitch_ < -89.0f) {
+        pitch_ = -89.0f;
+    }
+
+    UpdateCameraVectors();
+}
+
+void
+Camera::UpdateCameraVectors()
+{
+    //declaring a new variable to avoid dirty reads (happens if we modify components of camera_front_ directly)
+    glm::vec3 front;
+    front.x = cos(glm::radians(yaw_)) * cos(glm::radians(pitch_));
+    front.y = sin(glm::radians(pitch_));
+    front.z = sin(glm::radians(yaw_)) * cos(glm::radians(pitch_));
+    camera_front_ = glm::normalize(front);
+
+    // PrintCameraVectors();
 }
 
 float
@@ -69,5 +109,15 @@ Camera::GetDeltaTimeMs() const
 float
 Camera::GetNormalizedCameraSpeed() const
 {
-    return camera_speed_ * GetDeltaTimeMs()/1000.0f;
+    return speed_ * GetDeltaTimeMs()/1000.0f;
+}
+
+void
+Camera::PrintCameraVectors() const
+{
+    std::cout << "--- Camera::PrintCameraVectors() ---" << std::endl;
+    std::cout << "Camera Position: (" << camera_pos_.x << ", " << camera_pos_.y << ", " << camera_pos_.z << ")" << std::endl;
+    std::cout << "Camera Front: (" << camera_front_.x << ", " << camera_front_.y << ", " << camera_front_.z << ")" << std::endl;
+    std::cout << "Yaw: " << yaw_ << std::endl;
+    std::cout << "Pitch: " << pitch_ << std::endl;
 }

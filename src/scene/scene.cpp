@@ -10,24 +10,28 @@ Scene::Update()
     UpdatePerFrame();
 }
 
-const glm::mat4&
+glm::mat4
 Scene::GetModelMatrix() const
 {
     return model_;
 }
 
-const glm::mat4&
+glm::mat4
 Scene::GetViewMatrix() const
 {
-    camera_->GenerateViewMatrix();
+    if (Window::GetActiveWindow() == nullptr) {
+        throw std::runtime_error("Scene::GetViewMatrix(): Window is not initialized");
+    }
     return camera_->GetViewMatrix();
 }
 
-const glm::mat4&
+glm::mat4
 Scene::GetProjectionMatrix() const
 {
-    camera_->GenerateProjectionMatrix(Window::GetActiveWindow()->GetWindowWidth(), Window::GetActiveWindow()->GetWindowHeight());
-    return camera_->GetProjectionMatrix();
+    if (Window::GetActiveWindow() == nullptr) {
+        throw std::runtime_error("Scene::GetProjectionMatrix(): Window is not initialized");
+    }
+    return camera_->GetProjectionMatrix(Window::GetActiveWindow()->GetWindowWidth(), Window::GetActiveWindow()->GetWindowHeight());
 }
 
 float

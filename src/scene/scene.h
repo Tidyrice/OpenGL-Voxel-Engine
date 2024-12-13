@@ -14,14 +14,12 @@ class Scene {
 
         void Update(); //called every frame
 
-        const virtual glm::mat4& GetModelMatrix() const; //temporary. Need to embed this information in data sent to Window somehow for each block
-        const glm::mat4& GetViewMatrix() const;
-        const glm::mat4& GetProjectionMatrix() const;
+        virtual glm::mat4 GetModelMatrix() const; //temporary. Need to embed this information in data sent to Window somehow for each block
+        glm::mat4 GetViewMatrix() const; //we can return by value because of RVO (copy elision)
+        glm::mat4 GetProjectionMatrix() const;
 
-        virtual void HandleWKeyPress() = 0;
-        virtual void HandleAKeyPress() = 0;
-        virtual void HandleSKeyPress() = 0;
-        virtual void HandleDKeyPress() = 0;
+        virtual void HandleNormalKeys(unsigned char key, int x, int y) = 0;
+        virtual void HandleMouseMovement(int x, int y) = 0;
 
 
     protected:

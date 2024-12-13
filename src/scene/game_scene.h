@@ -8,10 +8,8 @@ class GameScene : public Scene {
         GameScene();
         ~GameScene() = default;
 
-        void HandleWKeyPress() override;
-        void HandleAKeyPress() override;
-        void HandleSKeyPress() override;
-        void HandleDKeyPress() override;
+        void HandleNormalKeys(unsigned char key, int x, int y) override;
+        void HandleMouseMovement(int x, int y) override;
 
     private:
         void UpdatePerFrame() override;
