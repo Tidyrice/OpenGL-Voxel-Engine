@@ -4,7 +4,6 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "window.h"
 #include <iostream>
-#include <GL/freeglut.h>
 
 Camera::Camera(float speed, float sensitity) : speed_{speed}, sensitivity_{sensitity}
 {
@@ -54,7 +53,7 @@ Camera::MoveRight()
 }
 
 void
-Camera::HandleMouseMovement(int x, int y)
+Camera::HandleMouseMovement(double x, double y)
 {
     if (first_mouse_movement_) { //this check is needed otherwise camera will jump when mouse first comes into frame
         last_x_ = x;
@@ -62,8 +61,6 @@ Camera::HandleMouseMovement(int x, int y)
         first_mouse_movement_ = false;
         return;
     }
-
-    //TODO: need a check to see if mouse is outside of window, the reset the bool
 
     //difference in mouse position
     float x_offset = (x - last_x_) * sensitivity_;
@@ -101,15 +98,15 @@ Camera::UpdateCameraVectors()
 }
 
 float
-Camera::GetDeltaTimeMs() const
+Camera::GetDeltaTime() const
 {
-    return Window::GetActiveWindow()->GetDeltaTimeMs();
+    return Window::GetActiveWindow()->GetDeltaTime();
 }
 
 float
 Camera::GetNormalizedCameraSpeed() const
 {
-    return speed_ * GetDeltaTimeMs()/1000.0f;
+    return speed_ * GetDeltaTime();
 }
 
 void

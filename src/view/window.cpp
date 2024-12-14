@@ -1,6 +1,5 @@
 #include <glad/glad.h>
 #include "window.h"
-#include <GL/freeglut.h>
 #include "controller.h"
 #include "scene.h"
 #include "shader.h"
@@ -19,14 +18,15 @@ Window::GetActiveWindow(Window* instance) //static method
     return active_instance;
 }
 
-Window::Window(int w, int h, int pos_x, int pos_y, std::string window_name, Scene* s) {
+Window::Window(int w, int h, std::string window_name, Scene* s): window_width_{w}, window_height_{h} {
     stbi_set_flip_vertically_on_load(true);
 
-    glutInitWindowSize(w, h);
-    window_width_ = w;
-    window_height_ = h;
-    glutInitWindowPosition(pos_x, pos_y);
-    window_id_ = glutCreateWindow(window_name.c_str());
+    glfw_window_ptr_ = glfwCreateWindow(w, h, window_name.c_str(), NULL, NULL);
+    if (glfw_window_ptr_ == NULL) {
+        std::cerr << "Window::Window(): Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+        exit(-1);
+    }
 
     SetScene(s);
 }
@@ -112,7 +112,7 @@ Window::InitializeBuffers()
 void
 Window::RegisterWindowCallbacks()
 {
-    if (window_id_ == -1) {
+    if (glfw_window_ptr_ == nullptr) {
         std::cerr << "Window::RegisterWindowCallbacks(): window not created yet" << std::endl;
         return;
     }
@@ -125,39 +125,21 @@ Window::RegisterWindowCallbacks()
     
     shader_->SetMat4("projection", GetProjectionMatrix());
 
-    //handle rendering
-    glutDisplayFunc(RenderSceneCallback);
-    glutReshapeFunc(WindowResizeCallback);
-    glutIdleFunc(RenderSceneCallback);
+    //resize callback
+    glfwSetFramebufferSizeCallback(glfw_window_ptr_, WindowResizeCallback);
 
-    //handle input
-    glutKeyboardFunc(Controller::ProcessNormalKeysCallback);
-    glutSpecialFunc(Controller::ProcessSpecialKeysCallback);
+    //handle keyboard input
+    glfwSetKeyCallback(glfw_window_ptr_, Controller::ProcessKeysCallback);
 
     //handle mouse input
-    glutMotionFunc(Controller::ProcessMouseMovementCallback);
-    glutPassiveMotionFunc(Controller::ProcessMouseMovementCallback);
+    glfwSetInputMode(glfw_window_ptr_, GLFW_CURSOR, GLFW_CURSOR_DISABLED); //hide and capture cursor
+    glfwSetCursorPosCallback(glfw_window_ptr_, Controller::ProcessMouseMovementCallback);
 }
 
-void
-Window::Clear()
+void Window::RenderScene()
 {
-    //clears all colours
-    GLclampf Red = 0.0f, Green = 0.0f, Blue = 0.0f, Alpha = 0.0f;
-    glClearColor(Red, Green, Blue, Alpha);
-}
+    glfwPollEvents();
 
-
-// ---- PRIVATE METHODS ---- //
-
-void
-Window::RenderSceneCallback()
-{
-	GetActiveWindow()->HandleRenderScene();
-}
-
-void Window::HandleRenderScene()
-{
     scene_->Update(); //let scene know that there is a new frame
 
     //clear the screen
@@ -182,12 +164,23 @@ void Window::HandleRenderScene()
     glDrawArrays(GL_TRIANGLES, 0, 36);
     // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-    glutSwapBuffers();
+    glfwSwapBuffers(glfw_window_ptr_);
     UpdateDeltaTime();
 }
 
 void
-Window::WindowResizeCallback(int w, int h) //this is needed because GLUT requires non-member or static member functions
+Window::Clear()
+{
+    //clears all colours
+    GLclampf Red = 0.0f, Green = 0.0f, Blue = 0.0f, Alpha = 0.0f;
+    glClearColor(Red, Green, Blue, Alpha);
+}
+
+
+// ---- PRIVATE METHODS ---- //
+
+void
+Window::WindowResizeCallback(GLFWwindow* glfw_window, int w, int h)
 {
     GetActiveWindow()->HandleResize(w, h);
 }
@@ -220,7 +213,7 @@ Window::GetProjectionMatrix() const
 void
 Window::UpdateDeltaTime()
 {
-    float current_frame = glutGet(GLUT_ELAPSED_TIME);
+    float current_frame = glfwGetTime();
     delta_time_ = current_frame - last_frame_;
     last_frame_ = current_frame;
 }

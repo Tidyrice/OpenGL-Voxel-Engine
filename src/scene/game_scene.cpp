@@ -1,11 +1,11 @@
 #include "game_scene.h"
 #include "camera.h"
-#include <GL/freeglut.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "game_config.h"
 #include <iostream>
+#include <GLFW/glfw3.h>
 
 GameScene::GameScene(): Scene{}
 {
@@ -16,33 +16,37 @@ GameScene::GameScene(): Scene{}
 void
 GameScene::UpdatePerFrame()
 {
-    model_ = glm::rotate(model_, GetDeltaTimeMs()/1000.0f * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f)); 
+    model_ = glm::rotate(model_, GetDeltaTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f)); 
 }
 
 void
-GameScene::HandleNormalKeys(unsigned char key, int x, int y)
+GameScene::HandleNormalKeys(int key, int action)
 {
+    if (action == GLFW_RELEASE) {
+        return;
+    }
+
     switch (key) {
-        case 27: //escape key
+        case GLFW_KEY_ESCAPE: //escape key
             exit(0);
             break;
-        case 'w':
+        case GLFW_KEY_W:
             camera_->MoveForward();
             break;
-        case 'a':
+        case GLFW_KEY_A:
             camera_->MoveLeft();
             break;
-        case 's':
+        case GLFW_KEY_S:
             camera_->MoveBackward();
             break;
-        case 'd':
+        case GLFW_KEY_D:
             camera_->MoveRight();
             break;
     }
 }
 
 void
-GameScene::HandleMouseMovement(int x, int y)
+GameScene::HandleMouseMovement(double x, double y)
 {
     camera_->HandleMouseMovement(x, y);
 }

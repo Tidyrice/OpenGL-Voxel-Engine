@@ -1,5 +1,5 @@
 #include <glad/glad.h>
-#include <GL/freeglut.h>
+#include <GLFW/glfw3.h>
 #include <iostream>
 #include <glm/glm.hpp>
 
@@ -16,15 +16,15 @@ int main(int argc, char* argv[]) {
 
     
     //GLUT initialization
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGBA|GLUT_DEPTH);
-    glutInitContextVersion(3, 3); // OpenGL 3.3
-    glutInitContextProfile(GLUT_CORE_PROFILE);
-    glutInitContextFlags(GLUT_FORWARD_COMPATIBLE);
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     //window initialization
-    Window window{WINDOW_WIDTH, WINDOW_HEIGHT, INITIAL_WINDOW_POSITION_X, INITIAL_WINDOW_POSITION_Y, WINDOW_NAME, &scene};
+    Window window{WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME, &scene};
     Window::GetActiveWindow(&window); // set the active window
+    glfwMakeContextCurrent(Window::GetActiveGlfwWindowPtr());
 
     //GLAD initialization
     if (!gladLoadGL()) {
@@ -42,7 +42,11 @@ int main(int argc, char* argv[]) {
 
     //start rendering
     window.RegisterWindowCallbacks();
-    glutMainLoop(); // never returns
+    while (!glfwWindowShouldClose(Window::GetActiveGlfwWindowPtr())) {
+        Window::GetActiveWindow()->RenderScene();
+    }
 
+
+    glfwTerminate();
     return 0;
 }

@@ -2,6 +2,7 @@
 #define CONTROLLER_H
 
 #include <memory>
+#include <GLFW/glfw3.h>
 
 class Window;
 class Scene;
@@ -13,14 +14,12 @@ class Controller {
         Controller(Scene* s): scene_{s} {};
         ~Controller() = default;
 
-        static void ProcessNormalKeysCallback(unsigned char key, int x, int y);
-        static void ProcessSpecialKeysCallback(int key, int x, int y);
-        static void ProcessMouseMovementCallback(int x, int y);
+        static void ProcessKeysCallback(GLFWwindow* glfw_window, int key, int scancode, int action, int mods);
+        static void ProcessMouseMovementCallback(GLFWwindow* glfw_window, double x, double y);
 
     private:
-        void HandleNormalKeys(unsigned char key, int x, int y) ;
-        void HandleSpecialKeys(int key, int x, int y);
-        void HandleMouseMovement(int x, int y);
+        void HandleKeys(int key, int action) ;
+        void HandleMouseMovement(double x, double y);
 
         Scene* scene_;
 };

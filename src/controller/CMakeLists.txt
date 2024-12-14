@@ -5,7 +5,7 @@ add_library(controller controller.cpp)
 target_link_libraries(controller PRIVATE
     view
     scene
-    freeglut_static
+    glfw
     ${OPENGL_LIBRARIES}
 )
 

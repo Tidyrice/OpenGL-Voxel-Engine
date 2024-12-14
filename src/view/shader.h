@@ -1,9 +1,9 @@
 #ifndef SHADER_H
 #define SHADER_H
 
-#include <GL/freeglut.h>
 #include <string>
 #include <glm/glm.hpp>
+#include <glfw/glfw3.h>
 
 class Shader {
     public:

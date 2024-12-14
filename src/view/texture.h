@@ -2,7 +2,6 @@
 #define TEXTURE_H
 
 #include <string>
-#include <GL/freeglut.h>
 
 class Shader;
 
@@ -15,7 +14,7 @@ class Texture {
         void Bind();
         void Unbind();
 
-        GLuint GetTextureId() const;
+        uint32_t GetTextureId() const;
 
     private:
         GLuint id_;

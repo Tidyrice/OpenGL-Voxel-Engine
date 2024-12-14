@@ -4,7 +4,7 @@ add_library(scene scene.cpp game_scene.cpp camera.cpp)
 # Link libraries required by the scene module
 target_link_libraries(scene PRIVATE
     view
-    freeglut_static
+    glfw
     ${OPENGL_LIBRARIES}
 )
 

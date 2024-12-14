@@ -15,11 +15,11 @@ class Camera {
         void MoveBackward();
         void MoveLeft();
         void MoveRight();
-        void HandleMouseMovement(int x, int y);
+        void HandleMouseMovement(double x, double y);
 
     private:
         void UpdateCameraVectors();
-        float GetDeltaTimeMs() const;
+        float GetDeltaTime() const;
         float GetNormalizedCameraSpeed() const; //normalizes camera speed based on the current frame rate (delta time)
         void PrintCameraVectors() const;
 
@@ -34,8 +34,8 @@ class Camera {
         float pitch_;
 
         bool first_mouse_movement_ = true;
-        float last_x_; // previous x position for the mouse
-        float last_y_; // previous y position for the mouse
+        double last_x_; // previous x position for the mouse
+        double last_y_; // previous y position for the mouse
 };
 
 #endif // CAMERA_H

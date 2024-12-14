@@ -3,8 +3,6 @@
 
 #define WINDOW_WIDTH 700
 #define WINDOW_HEIGHT 700
-#define INITIAL_WINDOW_POSITION_X 200
-#define INITIAL_WINDOW_POSITION_Y 100
 #define WINDOW_NAME "Procedural Generation"
 
 #define VERTEX_SHADER_PATH ASSETS_PATH "/shaders/vertex_shader.glsl"

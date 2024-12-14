@@ -2,8 +2,8 @@
 #define SCENE_H
 
 #include <memory>
-#include <GL/freeglut.h>
 #include <glm/glm.hpp>
+#include <GLFW/glfw3.h>
 
 class Camera;
 
@@ -18,13 +18,13 @@ class Scene {
         glm::mat4 GetViewMatrix() const; //we can return by value because of RVO (copy elision)
         glm::mat4 GetProjectionMatrix() const;
 
-        virtual void HandleNormalKeys(unsigned char key, int x, int y) = 0;
-        virtual void HandleMouseMovement(int x, int y) = 0;
+        virtual void HandleNormalKeys(int key, int action) = 0;
+        virtual void HandleMouseMovement(double x, double y) = 0;
 
 
     protected:
         virtual void UpdatePerFrame() = 0; //children overrides this. Called in Update()
-        float GetDeltaTimeMs() const;
+        float GetDeltaTime() const;
 
         GLuint VAO_, VBO_, EBO_;
         glm::mat4 model_; //model matrix

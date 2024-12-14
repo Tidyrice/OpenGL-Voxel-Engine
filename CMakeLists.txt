@@ -19,7 +19,7 @@ add_compile_definitions(ASSETS_PATH="${ASSETS_PATH}")
 
 # Include lib headers (must be defined BEFORE add_subdirectory)
 set(LIBRARY_INCLUDE_DIRS
-    ${LIBRARIES_PATH}/freeglut/include
+    ${LIBRARIES_PATH}/glfw/include
     ${LIBRARIES_PATH}/glm/glm
     ${LIBRARIES_PATH}/glad/include
     ${LIBRARIES_PATH}/stb)
@@ -28,7 +28,7 @@ set(LIBRARY_INCLUDE_DIRS
 include_directories(${LIBRARY_INCLUDE_DIRS})
 
 # Add libraries and subdirectories
-add_subdirectory(${LIBRARIES_PATH}/freeglut)
+add_subdirectory(${LIBRARIES_PATH}/glfw)
 add_subdirectory(${LIBRARIES_PATH}/glm)
 add_subdirectory(${LIBRARIES_PATH}/glad)
 add_subdirectory(${LIBRARIES_PATH}/stb)

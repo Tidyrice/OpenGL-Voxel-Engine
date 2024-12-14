@@ -13,43 +13,32 @@ Controller::GetActiveController(Controller* instance)
 }
 
 void
-Controller::ProcessNormalKeysCallback(unsigned char key, int x, int y)
+Controller::ProcessKeysCallback(GLFWwindow* glfw_window, int key, int scancode, int action, int mods)
 {
     if (GetActiveController()) {
-        GetActiveController()->HandleNormalKeys(key, x, y);
+        GetActiveController()->HandleKeys(key, action);
     }
 }
 
 void
-Controller::ProcessSpecialKeysCallback(int key, int x, int y)
-{
-    if (GetActiveController()) {
-        GetActiveController()->HandleSpecialKeys(key, x, y);
-    }
-}
-
-void
-Controller::ProcessMouseMovementCallback(int x, int y)
+Controller::ProcessMouseMovementCallback(GLFWwindow* glfw_window, double x, double y)
 {
     if (GetActiveController()) {
         GetActiveController()->HandleMouseMovement(x, y);
     }
 }
 
+
+// ---- PRIVATE METHODS ---- //
+
 void
-Controller::HandleNormalKeys(unsigned char key, int x, int y)
+Controller::HandleKeys(int key, int action)
 {
-    scene_->HandleNormalKeys(key, x, y);
+    scene_->HandleNormalKeys(key, action);
 }
 
 void
-Controller::HandleSpecialKeys(int key, int x, int y)
-{
-    
-}
-
-void
-Controller::HandleMouseMovement(int x, int y)
+Controller::HandleMouseMovement(double x, double y)
 {
     scene_->HandleMouseMovement(x, y);
 }

@@ -35,7 +35,7 @@ Scene::GetProjectionMatrix() const
 }
 
 float
-Scene::GetDeltaTimeMs() const
+Scene::GetDeltaTime() const
 {
-    return Window::GetActiveWindow()->GetDeltaTimeMs();
+    return Window::GetActiveWindow()->GetDeltaTime();
 }

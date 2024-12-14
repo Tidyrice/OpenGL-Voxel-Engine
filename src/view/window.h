@@ -2,7 +2,7 @@
 #define WINDOW_H
 
 #include <string>
-#include <GL/freeglut.h>
+#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
 class Shader;
@@ -14,12 +14,15 @@ class Window {
         Texture* tex; // TODO: remove (this is leaked memory) -- only for testing
 
         static Window* GetActiveWindow(Window* instance = nullptr);
+        static GLFWwindow* GetActiveGlfwWindowPtr() { return GetActiveWindow()->glfw_window_ptr_; }
 
-        Window(int w, int h, int pos_x, int pos_y, std::string window_name, Scene* s);
+        Window(int w, int h, std::string window_name, Scene* s);
         ~Window() = default;
 
         void InitializeBuffers();
         void RegisterWindowCallbacks();
+
+        void RenderScene();
 
         inline void SetShader(Shader* s) { shader_ = s; }
         inline void SetScene(Scene* s) { scene_ = s; }
@@ -27,7 +30,7 @@ class Window {
         inline int GetWindowWidth() const { return window_width_; }
         inline int GetWindowHeight() const { return window_height_; }
 
-        inline float GetDeltaTimeMs() const { return delta_time_; }
+        inline float GetDeltaTime() const { return delta_time_; }
 
         void Clear();
 
@@ -36,10 +39,7 @@ class Window {
         Window(Window&&) = delete;
         Window& operator=(Window const&) = delete;
         Window& operator=(Window&&) = delete;
-        
-        static void RenderSceneCallback();
-        void HandleRenderScene();
-        static void WindowResizeCallback(int w, int h);
+        static void WindowResizeCallback(GLFWwindow* glfw_window, int w, int h);
         void HandleResize(int w, int h);
 
         const glm::mat4 GetModelMatrix() const;
@@ -53,7 +53,7 @@ class Window {
         Shader* shader_;
         Scene* scene_;
 
-        int window_id_ = -1;
+        GLFWwindow* glfw_window_ptr_;
         int window_width_ = 0;
         int window_height_ = 0;
         float delta_time_ = 0.0f;
