@@ -22,6 +22,11 @@ class Window {
         void InitializeBuffers();
         void RegisterWindowCallbacks();
 
+        enum class RenderMode {
+            FILL_MODE,
+            WIREFRAME_MODE
+        };
+        void SetRenderMode(RenderMode mode);
         void RenderScene();
 
         inline void SetShader(Shader* s) { shader_ = s; }
@@ -49,7 +54,6 @@ class Window {
         void UpdateDeltaTime();
 
         /* PRIVATE MEMBERS */
-        GLuint VAO_, VBO_, EBO_;
         Shader* shader_;
         Scene* scene_;
 

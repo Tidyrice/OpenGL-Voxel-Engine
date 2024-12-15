@@ -32,78 +32,8 @@ Window::Window(int w, int h, std::string window_name, Scene* s): window_width_{w
 }
 
 void
-Window::InitializeBuffers()
+Window::InitializeBuffers() //TODO: move this to scene and use array textures or texture atlas
 {
-    //some temporary data
-    float vertices[] = {
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-    };
-
-    unsigned int indices[] = {
-        0, 1, 2,   // First triangle
-        2, 1, 3    // Second triangle
-    };
-
-    glGenVertexArrays(1, &VAO_);
-    glGenBuffers(1, &VBO_);
-    glGenBuffers(1, &EBO_);
-
-    glBindVertexArray(VAO_);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    // textureCoords attribute
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
     // texture
     tex = new Texture{ASSETS_PATH "/textures/grass_side.png", GL_TEXTURE_2D, GL_TEXTURE0};
     tex->AssignTextureUnit(shader_, "texture0", 0);
@@ -136,10 +66,25 @@ Window::RegisterWindowCallbacks()
     glfwSetCursorPosCallback(glfw_window_ptr_, Controller::ProcessMouseMovementCallback);
 }
 
-void Window::RenderScene()
+void
+Window::SetRenderMode(RenderMode mode)
+{
+    switch (mode) {
+        case RenderMode::FILL_MODE:
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            break;
+        case RenderMode::WIREFRAME_MODE:
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            break;
+    }
+}
+
+void
+Window::RenderScene()
 {
     glfwPollEvents();
 
+    UpdateDeltaTime();
     scene_->Update(); //let scene know that there is a new frame
 
     //clear the screen
@@ -150,9 +95,6 @@ void Window::RenderScene()
 
     tex->Bind();
 
-    // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // FILL MODE
-    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // WIREFRAME MODE
-
     //send model matrix to shader
     shader_->SetMat4("model", GetModelMatrix());
 
@@ -160,12 +102,12 @@ void Window::RenderScene()
     shader_->SetMat4("view", GetViewMatrix());
 
     //render
-    glBindVertexArray(VAO_);
+    glBindVertexArray(scene_->GetVAO());
     glDrawArrays(GL_TRIANGLES, 0, 36);
+
     // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     glfwSwapBuffers(glfw_window_ptr_);
-    UpdateDeltaTime();
 }
 
 void

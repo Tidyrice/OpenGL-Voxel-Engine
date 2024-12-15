@@ -1,18 +1,19 @@
 # Create a library for the scene module
-add_library(scene scene.cpp camera.cpp)
+add_library(game game_scene.cpp)
 
 # Link libraries required by the scene module
-target_link_libraries(scene PRIVATE
+target_link_libraries(game PRIVATE
     view
+    scene
     glfw
     ${OPENGL_LIBRARIES}
 )
 
-target_link_libraries(scene PUBLIC
+target_link_libraries(game PUBLIC
     glm
 )
 
 # Include directories for this library
-target_include_directories(scene PUBLIC
+target_include_directories(game PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
 )

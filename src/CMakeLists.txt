@@ -6,18 +6,21 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     view
     controller
     scene
+    game
 )
 
 # Add subdirectories
 add_subdirectory(view)
 add_subdirectory(controller)
 add_subdirectory(scene)
+add_subdirectory(game)
 
 # Link libraries and dependencies to the main executable
 target_link_libraries(${PROJECT_NAME} PRIVATE
     view
     controller
     scene
+    game
     glad
     ${OPENGL_LIBRARIES}
 )

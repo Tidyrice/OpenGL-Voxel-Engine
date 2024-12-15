@@ -18,6 +18,10 @@ class Scene {
         glm::mat4 GetViewMatrix() const; //we can return by value because of RVO (copy elision)
         glm::mat4 GetProjectionMatrix() const;
 
+        inline GLuint GetVAO() const { return VAO_; }
+        inline GLuint GetVBO() const { return VBO_; }
+        inline GLuint GetEBO() const { return EBO_; }
+
         virtual void HandleNormalKeys(int key, int action) = 0;
         virtual void HandleMouseMovement(double x, double y) = 0;
 

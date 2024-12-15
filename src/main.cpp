@@ -42,6 +42,7 @@ int main(int argc, char* argv[]) {
 
     //start rendering
     window.RegisterWindowCallbacks();
+    window.SetRenderMode(Window::RenderMode::FILL_MODE);
     while (!glfwWindowShouldClose(Window::GetActiveGlfwWindowPtr())) {
         Window::GetActiveWindow()->RenderScene();
     }
