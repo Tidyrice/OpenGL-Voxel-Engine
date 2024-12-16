@@ -1,7 +1,7 @@
-# Create a library for the scene module
+# Create a library for the game module
 add_library(game game_scene.cpp)
 
-# Link libraries required by the scene module
+# Link libraries required by the game module
 target_link_libraries(game PRIVATE
     view
     scene

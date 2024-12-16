@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 set (PROJECT_NAME "ProcGen")
 set(LIBRARIES_PATH "${CMAKE_SOURCE_DIR}/lib")
 set(ASSETS_PATH "${CMAKE_SOURCE_DIR}/assets")
+set(TEXTURES_PATH "${ASSETS_PATH}/textures")
 
 project(${PROJECT_NAME} VERSION 1.0)
 set(CMAKE_CXX_STANDARD 20)

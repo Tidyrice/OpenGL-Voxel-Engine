@@ -13,6 +13,7 @@ class Scene {
         virtual ~Scene() = 0;
 
         void Update(); //called every frame
+        virtual GLuint GenerateArrayTexture() = 0;
 
         virtual glm::mat4 GetModelMatrix() const; //temporary. Need to embed this information in data sent to Window somehow for each block
         glm::mat4 GetViewMatrix() const; //we can return by value because of RVO (copy elision)

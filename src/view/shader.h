@@ -12,6 +12,7 @@ class Shader {
         GLuint GetShaderId() const;
 
         void SetMat4(const std::string &name, const glm::mat4 &mat) const;
+        void SetUniform1i(const std::string &name, int value) const;
 
     private:
         void InitializeShaders(const char* vertex_shader_src, const char* fragment_shader_src);

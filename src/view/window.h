@@ -11,15 +11,12 @@ class Texture;
 
 class Window {
     public:
-        Texture* tex; // TODO: remove (this is leaked memory) -- only for testing
-
         static Window* GetActiveWindow(Window* instance = nullptr);
         static GLFWwindow* GetActiveGlfwWindowPtr() { return GetActiveWindow()->glfw_window_ptr_; }
 
         Window(int w, int h, std::string window_name, Scene* s);
         ~Window() = default;
 
-        void InitializeBuffers();
         void RegisterWindowCallbacks();
 
         enum class RenderMode {

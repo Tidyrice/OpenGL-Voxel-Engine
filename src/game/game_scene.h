@@ -8,6 +8,8 @@ class GameScene : public Scene {
         GameScene();
         ~GameScene() = default;
 
+        GLuint GenerateArrayTexture() override;
+
         void HandleNormalKeys(int key, int action) override;
         void HandleMouseMovement(double x, double y) override;
 

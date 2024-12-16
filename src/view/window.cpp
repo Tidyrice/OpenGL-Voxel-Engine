@@ -32,14 +32,6 @@ Window::Window(int w, int h, std::string window_name, Scene* s): window_width_{w
 }
 
 void
-Window::InitializeBuffers() //TODO: move this to scene and use array textures or texture atlas
-{
-    // texture
-    tex = new Texture{ASSETS_PATH "/textures/grass_side.png", GL_TEXTURE_2D, GL_TEXTURE0};
-    tex->AssignTextureUnit(shader_, "texture0", 0);
-}
-
-void
 Window::RegisterWindowCallbacks()
 {
     if (glfw_window_ptr_ == nullptr) {
@@ -54,6 +46,11 @@ Window::RegisterWindowCallbacks()
     }
     
     shader_->SetMat4("projection", GetProjectionMatrix());
+
+    //TEMP: create texture array
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, scene_->GenerateArrayTexture());
+    shader_->SetUniform1i("textureArray", 0);
 
     //resize callback
     glfwSetFramebufferSizeCallback(glfw_window_ptr_, WindowResizeCallback);
@@ -92,8 +89,6 @@ Window::RenderScene()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     shader_->UseShader();
-
-    tex->Bind();
 
     //send model matrix to shader
     shader_->SetMat4("model", GetModelMatrix());

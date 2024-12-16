@@ -38,7 +38,6 @@ int main(int argc, char* argv[]) {
     //shader initialization
     Shader shader{VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH};
     window.SetShader(&shader);
-    window.InitializeBuffers();
 
     //start rendering
     window.RegisterWindowCallbacks();
