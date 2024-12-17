@@ -9,6 +9,11 @@
 #include <GLFW/glfw3.h>
 #include <stb_image.h>
 
+//locations of vertex attributes in shader
+constexpr uint32_t VERTEX_POS_LOCATION = 0;
+constexpr uint32_t TEX_COORD_LOCATION = 1;
+constexpr uint32_t TEX_LAYER_LOCATION = 2;
+
 GameScene::GameScene(): Scene{}
 {
     camera_ = std::make_unique<Camera>(CAMERA_SPEED, CAMERA_SENSITIVITY);
@@ -75,85 +80,111 @@ GameScene::GenerateArrayTexture()
 void
 GameScene::UpdatePerFrame()
 {
-    model_ = glm::rotate(model_, GetDeltaTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+    model_ = glm::rotate(model_, GetDeltaTime() * glm::radians(50.0f), glm::vec3(1.0f, 1.0f, 0.0f));
 
     //some temporary data
-    float vertices[] = {
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 1,
-         0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 1,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1,
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 1,
+    GLfloat vertices[] = {
+        //front
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f,  1.0f,
 
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0,
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f,  1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,
 
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0,
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0,
+        //left
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,
+        -0.5f,  0.5f, -0.5f,  1.0f,  1.0f,
 
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0,
-         0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f,  1.0f,  1.0f,
+        -0.5f, -0.5f, -0.5f,  1.0f,  0.0f,
 
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0,
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 0,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0,
+        //back
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,
+        -0.5f,  0.5f,  0.5f,  1.0f,  1.0f,
 
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0,
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 0,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f,  1.0f,  1.0f,
+        -0.5f, -0.5f,  0.5f,  1.0f,  0.0f,
+
+        //right
+         0.5f, -0.5f, -0.5f,  0.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  1.0f,
+
+         0.5f, -0.5f, -0.5f,  0.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,
+
+        //top
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  1.0f,
+
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,
+
+        //bottom
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f,  1.0f,
+
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f,  1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f
+    };
+
+    //can't put these in the float array cause int and float have different bitwise representations
+    GLint texture_layers[] = {
+        0, 0, 0, 0, 0, 0, //front
+        0, 0, 0, 0, 0, 0, //left
+        0, 0, 0, 0, 0, 0, //back
+        0, 0, 0, 0, 0, 0, //right
+        1, 1, 1, 1, 1, 1, //top
+        2, 2, 2, 2, 2, 2 //bottom
     };
 
     unsigned int indices[] = {
-        0, 1, 2, 2, 3, 0,  // Back face
-        4, 5, 6, 6, 7, 4,  // Front face
-        8, 9, 10, 10, 11, 8,  // Left face
-        12, 13, 14, 14, 15, 12,  // Right face
-        16, 17, 18, 18, 19, 16,  // Bottom face
-        20, 21, 22, 22, 23, 20   // Top face
+        // 0, 1, 2, 2, 3, 0,  // Back face
+        // 4, 5, 6, 6, 7, 4,  // Front face
+        // 8, 9, 10, 10, 11, 8,  // Left face
+        // 12, 13, 14, 14, 15, 12,  // Right face
+        // 16, 17, 18, 18, 19, 16,  // Bottom face
+        // 20, 21, 22, 22, 23, 20   // Top face
     };
 
     glGenVertexArrays(1, &VAO_);
-    glGenBuffers(1, &VBO_);
     glGenBuffers(1, &EBO_);
 
     glBindVertexArray(VAO_);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
+    // EBO (not currently using)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+    // POSITION + TEXURE COORDINATES VBO
+    glGenBuffers(1, &pos_tex_VBO_);
+    glBindBuffer(GL_ARRAY_BUFFER, pos_tex_VBO_);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); //set pointer to data
+    
+    glVertexAttribPointer(VERTEX_POS_LOCATION, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0); // vertex position
+    glEnableVertexAttribArray(VERTEX_POS_LOCATION);
+    
+    glVertexAttribPointer(TEX_COORD_LOCATION, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float))); // texture coordinates
+    glEnableVertexAttribArray(TEX_COORD_LOCATION);
 
-    // textureCoords attribute
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
+    // TEXTURE LAYER VBO
+    glGenBuffers(1, &layer_VBO_);
+    glBindBuffer(GL_ARRAY_BUFFER, layer_VBO_);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(texture_layers), texture_layers, GL_STATIC_DRAW); //set pointer to data
 
-    // textureLayer attribute
-    glVertexAttribIPointer(2, 1, GL_INT, 6 * sizeof(float), (void*)(5 * sizeof(float)));
-    glEnableVertexAttribArray(2);
+    glVertexAttribIPointer(TEX_LAYER_LOCATION, 1, GL_INT, 1 * sizeof(int), (void*)0); // texture layer
+    glEnableVertexAttribArray(TEX_LAYER_LOCATION);
 }
 
 void

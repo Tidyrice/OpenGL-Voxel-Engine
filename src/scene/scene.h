@@ -20,7 +20,6 @@ class Scene {
         glm::mat4 GetProjectionMatrix() const;
 
         inline GLuint GetVAO() const { return VAO_; }
-        inline GLuint GetVBO() const { return VBO_; }
         inline GLuint GetEBO() const { return EBO_; }
 
         virtual void HandleNormalKeys(int key, int action) = 0;
@@ -31,7 +30,9 @@ class Scene {
         virtual void UpdatePerFrame() = 0; //children overrides this. Called in Update()
         float GetDeltaTime() const;
 
-        GLuint VAO_, VBO_, EBO_;
+        GLuint VAO_, EBO_;
+        GLuint pos_tex_VBO_; //holds position (vec3) and texture coordinates (vec2)
+        GLuint layer_VBO_; //holds texture layer (int)
         glm::mat4 model_; //model matrix
         std::unique_ptr<Camera> camera_;
 };
