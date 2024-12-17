@@ -26,7 +26,7 @@ class Window {
         void SetRenderMode(RenderMode mode);
         void RenderScene();
 
-        inline void SetShader(Shader* s) { shader_ = s; }
+        void SetShader(Shader* s);
         inline void SetScene(Scene* s) { scene_ = s; }
 
         inline int GetWindowWidth() const { return window_width_; }

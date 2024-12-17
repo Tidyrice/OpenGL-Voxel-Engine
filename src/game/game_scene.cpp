@@ -46,8 +46,8 @@ GameScene::GenerateArrayTexture()
 
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_NEAREST for pixel art
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     //allocate storage (found this on stack overflow)
     glTexImage3D(GL_TEXTURE_2D_ARRAY,
@@ -79,12 +79,12 @@ GameScene::UpdatePerFrame()
 
     //some temporary data
     float vertices[] = {
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 0,
-         0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0,
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 0,
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 1,
+         0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 1,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1,
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 1,
 
         -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0,
          0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0,

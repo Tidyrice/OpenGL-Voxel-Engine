@@ -106,6 +106,13 @@ Window::RenderScene()
 }
 
 void
+Window::SetShader(Shader* s)
+{
+    shader_ = s;
+    shader_->UseShader();
+}
+
+void
 Window::Clear()
 {
     //clears all colours
