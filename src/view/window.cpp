@@ -48,8 +48,9 @@ Window::RegisterWindowCallbacks()
     shader_->SetMat4("projection", GetProjectionMatrix());
 
     //TEMP: create texture array
+    GLuint texture_arr = scene_->GenerateArrayTexture();
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, scene_->GenerateArrayTexture());
+    glBindTexture(GL_TEXTURE_2D_ARRAY, texture_arr);
     shader_->SetUniform1i("textureArray", 0);
 
     //resize callback
@@ -99,8 +100,7 @@ Window::RenderScene()
     //render
     glBindVertexArray(scene_->GetVAO());
     glDrawArrays(GL_TRIANGLES, 0, 36);
-
-    // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    // glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0); //use EBO
 
     glfwSwapBuffers(glfw_window_ptr_);
 }

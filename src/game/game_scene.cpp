@@ -41,7 +41,13 @@ GameScene::GenerateArrayTexture()
 
     GLuint array_texture;
     glGenTextures(1, &array_texture);
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D_ARRAY, array_texture);
+
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     //allocate storage (found this on stack overflow)
     glTexImage3D(GL_TEXTURE_2D_ARRAY,
@@ -53,11 +59,6 @@ GameScene::GenerateArrayTexture()
                 GL_UNSIGNED_BYTE,         // type
                 0);                       // pointer to data
 
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
     for (int i = 0; i < texture_data.size(); i++) {
         //send texture data to ith layer of texture array
         glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, tex_width, tex_height, 1, GL_RGBA, GL_UNSIGNED_BYTE, texture_data[i]);
@@ -67,6 +68,7 @@ GameScene::GenerateArrayTexture()
         stbi_image_free(data);
     }
 
+    glBindTexture(GL_TEXTURE_2D_ARRAY, array_texture);
     return array_texture;
 }
 
@@ -121,8 +123,12 @@ GameScene::UpdatePerFrame()
     };
 
     unsigned int indices[] = {
-        0, 1, 2,   // First triangle
-        2, 1, 3    // Second triangle
+        0, 1, 2, 2, 3, 0,  // Back face
+        4, 5, 6, 6, 7, 4,  // Front face
+        8, 9, 10, 10, 11, 8,  // Left face
+        12, 13, 14, 14, 15, 12,  // Right face
+        16, 17, 18, 18, 19, 16,  // Bottom face
+        20, 21, 22, 22, 23, 20   // Top face
     };
 
     glGenVertexArrays(1, &VAO_);
@@ -146,7 +152,7 @@ GameScene::UpdatePerFrame()
     glEnableVertexAttribArray(1);
 
     // textureLayer attribute
-    glVertexAttribIPointer(2, 1, GL_INT, 6 * sizeof(float), (void*)(4 * sizeof(float)));
+    glVertexAttribIPointer(2, 1, GL_INT, 6 * sizeof(float), (void*)(5 * sizeof(float)));
     glEnableVertexAttribArray(2);
 }
 
