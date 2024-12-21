@@ -8,6 +8,7 @@
 #include <iostream>
 #include <GLFW/glfw3.h>
 #include <stb_image.h>
+#include <block_enums.h>
 
 //locations of vertex attributes in shader
 constexpr uint32_t VERTEX_POS_LOCATION = 0;
@@ -88,7 +89,6 @@ GameScene::UpdatePerFrame()
         -0.5f, -0.5f, -0.5f,  0.0f,  0.0f,
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,
          0.5f,  0.5f, -0.5f,  1.0f,  1.0f,
-
         -0.5f, -0.5f, -0.5f,  0.0f,  0.0f,
          0.5f,  0.5f, -0.5f,  1.0f,  1.0f,
          0.5f, -0.5f, -0.5f,  1.0f,  0.0f,
@@ -97,7 +97,6 @@ GameScene::UpdatePerFrame()
         -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,
         -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,
         -0.5f,  0.5f, -0.5f,  1.0f,  1.0f,
-
         -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,
         -0.5f,  0.5f, -0.5f,  1.0f,  1.0f,
         -0.5f, -0.5f, -0.5f,  1.0f,  0.0f,
@@ -106,7 +105,6 @@ GameScene::UpdatePerFrame()
          0.5f, -0.5f,  0.5f,  0.0f,  0.0f,
          0.5f,  0.5f,  0.5f,  0.0f,  1.0f,
         -0.5f,  0.5f,  0.5f,  1.0f,  1.0f,
-
          0.5f, -0.5f,  0.5f,  0.0f,  0.0f,
         -0.5f,  0.5f,  0.5f,  1.0f,  1.0f,
         -0.5f, -0.5f,  0.5f,  1.0f,  0.0f,
@@ -115,7 +113,6 @@ GameScene::UpdatePerFrame()
          0.5f, -0.5f, -0.5f,  0.0f,  0.0f,
          0.5f,  0.5f, -0.5f,  0.0f,  1.0f,
          0.5f,  0.5f,  0.5f,  1.0f,  1.0f,
-
          0.5f, -0.5f, -0.5f,  0.0f,  0.0f,
          0.5f,  0.5f,  0.5f,  1.0f,  1.0f,
          0.5f, -0.5f,  0.5f,  1.0f,  0.0f,
@@ -124,7 +121,6 @@ GameScene::UpdatePerFrame()
         -0.5f,  0.5f, -0.5f,  0.0f,  0.0f,
         -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,
          0.5f,  0.5f,  0.5f,  1.0f,  1.0f,
-
         -0.5f,  0.5f, -0.5f,  0.0f,  0.0f,
          0.5f,  0.5f,  0.5f,  1.0f,  1.0f,
          0.5f,  0.5f, -0.5f,  1.0f,  0.0f,
@@ -133,7 +129,6 @@ GameScene::UpdatePerFrame()
         -0.5f, -0.5f, -0.5f,  0.0f,  0.0f,
         -0.5f, -0.5f,  0.5f,  0.0f,  1.0f,
          0.5f, -0.5f,  0.5f,  1.0f,  1.0f,
-
         -0.5f, -0.5f, -0.5f,  0.0f,  0.0f,
          0.5f, -0.5f,  0.5f,  1.0f,  1.0f,
          0.5f, -0.5f, -0.5f,  1.0f,  0.0f

@@ -16,11 +16,12 @@ class BlockTemplated : public Block {
             return T::opacity_;
         };
 
-    private:
-        //FRONT, LEFT, BACK, RIGHT, TOP, BOTTOM
-        const int* GetTextureLayers() const override {
-            return T::texture_layers_;
+        inline const std::map<BlockFace, std::vector<int>>& GetTextureLayersVaoMap() const override { //FRONT, LEFT, BACK, RIGHT, TOP, BOTTOM
+            return GenerateTextureLayersVaoMap();
         };
+
+    private:
+        static std::map<BlockFace, std::vector<int>>& GenerateTextureLayersVaoMap();
 };
 
 #endif // BLOCK_TEMPLATED_H

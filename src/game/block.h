@@ -1,26 +1,12 @@
 #ifndef BLOCK_H
 #define BLOCK_H
 
-enum BlockId {
-    AIR = 0,
-    BEDROCK,
-    GRASS_BLOCK,
-    DIRT_BLOCK,
-    STONE_BLOCK,
-    OAK_BLOCK,
-    OAK_LEAVE,
-    SAND_BLOCK,
-    WATER_BLOCK,
-    GLOWSTONE_BLOCK,
-};
-
-enum BlockOpacity {
-    SOLID = 0,
-    TRANSPARENT,
-    SEMI_TRANSPARENT,
-};
-
 #include <vector>
+#include <map>
+#include <string>
+#include "block_enums.h"
+
+using namespace BlockEnum;
 
 class Block {
     public:
@@ -29,11 +15,11 @@ class Block {
 
         virtual BlockId GetId() const = 0;
         virtual BlockOpacity GetOpacity() const = 0;
-        std::vector<float> GetVertices() const;
+        const std::map<BlockFace, std::vector<float>>& GetVerticiesVaoMap() const; //contains vertex positions and texture coordinates
+        virtual const std::map<BlockFace, std::vector<int>>& GetTextureLayersVaoMap() const = 0; //layers returned in the order: FRONT, LEFT, BACK, RIGHT, TOP, BOTTOM
 
     private:
-        //layers returned in the order: FRONT, LEFT, BACK, RIGHT, TOP, BOTTOM
-        virtual const int* GetTextureLayers() const = 0;
+        static std::map<BlockFace, std::vector<float>> verticies_map_;
 };
 
 #endif // BLOCK_H

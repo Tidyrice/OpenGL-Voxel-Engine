@@ -1,5 +1,5 @@
 # Create a library for the game module
-add_library(game game_scene.cpp block_factory.cpp)
+add_library(game game_scene.cpp block_factory.cpp block.cpp block_templated.cpp block_texture_map.h)
 target_compile_definitions(game PRIVATE TEXTURES_PATH="${ASSETS_PATH}/textures")
 
 # Link libraries required by the game module
