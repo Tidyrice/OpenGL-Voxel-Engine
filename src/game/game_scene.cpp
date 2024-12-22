@@ -182,6 +182,12 @@ GameScene::HandleNormalKeys(int key, int action)
         case GLFW_KEY_D:
             camera_->MoveRight();
             break;
+        case GLFW_KEY_SPACE:
+            camera_->MoveUp();
+            break;
+        case GLFW_KEY_LEFT_SHIFT:
+            camera_->MoveDown();
+            break;
     }
 }
 

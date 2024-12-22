@@ -15,6 +15,8 @@ class Camera {
         void MoveBackward();
         void MoveLeft();
         void MoveRight();
+        void MoveUp();
+        void MoveDown();
         void HandleMouseMovement(double x, double y);
 
     private:

@@ -53,6 +53,20 @@ Camera::MoveRight()
 }
 
 void
+Camera::MoveUp()
+{
+    camera_pos_ += GetNormalizedCameraSpeed() * camera_up_;
+    UpdateCameraVectors();
+}
+
+void
+Camera::MoveDown()
+{
+    camera_pos_ -= GetNormalizedCameraSpeed() * camera_up_;
+    UpdateCameraVectors();
+}
+
+void
 Camera::HandleMouseMovement(double x, double y)
 {
     if (first_mouse_movement_) { //this check is needed otherwise camera will jump when mouse first comes into frame
