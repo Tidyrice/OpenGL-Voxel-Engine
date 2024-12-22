@@ -11,7 +11,7 @@ class BlockFactory {
         BlockFactory() = default;
         ~BlockFactory() = default;
 
-        std::unique_ptr<Block> CreateBlock(BlockId id);
+        static std::unique_ptr<Block> CreateBlock(BlockId id);
 };
 
 #endif // BLOCK_FACTORY_H

@@ -9,6 +9,8 @@
 #include <GLFW/glfw3.h>
 #include <stb_image.h>
 #include <block_enums.h>
+#include <block_texture_map.h>
+#include <block_factory.h>
 
 //locations of vertex attributes in shader
 constexpr uint32_t VERTEX_POS_LOCATION = 0;
@@ -24,9 +26,12 @@ GameScene::GameScene(): Scene{}
 GLuint
 GameScene::GenerateArrayTexture()
 {
-    //temporary stuff until I make a block class
-    
-    std::vector<std::string> texture_paths = {ASSETS_PATH "/textures/grass_side.png", ASSETS_PATH "/textures/grass_top.png", ASSETS_PATH "/textures/dirt.png", ASSETS_PATH "/textures/stone.png"};
+    std::vector<std::string> texture_paths;
+
+    //iterate through BlockTexture enum and load textures from the map
+    for (int i = 0; i != static_cast<int>(BlockEnum::BlockTexture::END_TEXTURES); i++) {
+        texture_paths.push_back(block_texture_map.at(static_cast<BlockEnum::BlockTexture>(i)));
+    }
     int tex_width, tex_height, tex_channels;
     std::vector<unsigned char*> texture_data;
 
@@ -83,66 +88,19 @@ GameScene::UpdatePerFrame()
 {
     model_ = glm::rotate(model_, GetDeltaTime() * glm::radians(50.0f), glm::vec3(1.0f, 1.0f, 0.0f));
 
-    //some temporary data
-    GLfloat vertices[] = {
-        //front
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f,  1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f,  1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,
+    std::unique_ptr<Block> grass_block = BlockFactory::CreateBlock(BlockEnum::BlockId::GRASS_BLOCK);
+    const auto& verticies_map = grass_block->GetVerticiesVaoMap();
+    const auto& texture_layers_map = grass_block->GetTextureLayersVaoMap();
 
-        //left
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f,  1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f,  1.0f,
-        -0.5f, -0.5f, -0.5f,  1.0f,  0.0f,
+    std::vector<float> vertices_VAO;
+    for (const auto& [face, verticies] : verticies_map) {
+        vertices_VAO.insert(vertices_VAO.end(), verticies.begin(), verticies.end()); //insert verticies for all faces
+    }
 
-        //back
-         0.5f, -0.5f,  0.5f,  0.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f,  1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f,  1.0f,
-        -0.5f, -0.5f,  0.5f,  1.0f,  0.0f,
-
-        //right
-         0.5f, -0.5f, -0.5f,  0.0f,  0.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f,  1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f,  1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,
-
-        //top
-        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f,  1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f,  1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,
-
-        //bottom
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f,  1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f,  1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f,  1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f,  0.0f
-    };
-
-    //can't put these in the float array cause int and float have different bitwise representations
-    GLint texture_layers[] = {
-        0, 0, 0, 0, 0, 0, //front
-        0, 0, 0, 0, 0, 0, //left
-        0, 0, 0, 0, 0, 0, //back
-        0, 0, 0, 0, 0, 0, //right
-        1, 1, 1, 1, 1, 1, //top
-        2, 2, 2, 2, 2, 2 //bottom
-    };
+    std::vector<int> texture_layers_VAO;
+    for (const auto& [face, texture_layers] : texture_layers_map) {
+        texture_layers_VAO.insert(texture_layers_VAO.end(), texture_layers.begin(), texture_layers.end()); //insert texture layers for all faces
+    }
 
     unsigned int indices[] = {
         // 0, 1, 2, 2, 3, 0,  // Back face
@@ -165,7 +123,7 @@ GameScene::UpdatePerFrame()
     // POSITION + TEXURE COORDINATES VBO
     glGenBuffers(1, &pos_tex_VBO_);
     glBindBuffer(GL_ARRAY_BUFFER, pos_tex_VBO_);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); //set pointer to data
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*vertices_VAO.size(), &vertices_VAO[0], GL_STATIC_DRAW); //set pointer to data
     
     glVertexAttribPointer(VERTEX_POS_LOCATION, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0); // vertex position
     glEnableVertexAttribArray(VERTEX_POS_LOCATION);
@@ -176,7 +134,7 @@ GameScene::UpdatePerFrame()
     // TEXTURE LAYER VBO
     glGenBuffers(1, &layer_VBO_);
     glBindBuffer(GL_ARRAY_BUFFER, layer_VBO_);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(texture_layers), texture_layers, GL_STATIC_DRAW); //set pointer to data
+    glBufferData(GL_ARRAY_BUFFER, sizeof(int)*texture_layers_VAO.size(), &texture_layers_VAO[0], GL_STATIC_DRAW); //set pointer to data
 
     glVertexAttribIPointer(TEX_LAYER_LOCATION, 1, GL_INT, 1 * sizeof(int), (void*)0); // texture layer
     glEnableVertexAttribArray(TEX_LAYER_LOCATION);

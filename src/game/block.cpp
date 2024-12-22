@@ -3,7 +3,7 @@
 Block::~Block() {}
 
 const std::map<BlockFace, std::vector<float>>&
-Block::GetVerticiesVaoMap() const
+Block::GetVerticiesVaoMap()
 {
     return verticies_map_;
 }

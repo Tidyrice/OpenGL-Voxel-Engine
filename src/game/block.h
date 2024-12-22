@@ -15,7 +15,7 @@ class Block {
 
         virtual BlockId GetId() const = 0;
         virtual BlockOpacity GetOpacity() const = 0;
-        const std::map<BlockFace, std::vector<float>>& GetVerticiesVaoMap() const; //contains vertex positions and texture coordinates
+        static const std::map<BlockFace, std::vector<float>>& GetVerticiesVaoMap(); //contains vertex positions and texture coordinates (static casue all blocks have the same verticies)
         virtual const std::map<BlockFace, std::vector<int>>& GetTextureLayersVaoMap() const = 0; //layers returned in the order: FRONT, LEFT, BACK, RIGHT, TOP, BOTTOM
 
     private:
