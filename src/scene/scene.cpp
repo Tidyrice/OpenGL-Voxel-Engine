@@ -11,12 +11,6 @@ Scene::Update()
 }
 
 glm::mat4
-Scene::GetModelMatrix() const
-{
-    return model_;
-}
-
-glm::mat4
 Scene::GetViewMatrix() const
 {
     if (Window::GetActiveWindow() == nullptr) {

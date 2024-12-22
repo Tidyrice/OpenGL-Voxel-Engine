@@ -11,6 +11,8 @@
 #include <block_enums.h>
 #include <block_texture_map.h>
 #include <block_factory.h>
+#include "window.h"
+#include "shader.h"
 
 //locations of vertex attributes in shader
 constexpr uint32_t VERTEX_POS_LOCATION = 0;
@@ -20,7 +22,6 @@ constexpr uint32_t TEX_LAYER_LOCATION = 2;
 GameScene::GameScene(): Scene{}
 {
     camera_ = std::make_unique<Camera>(CAMERA_SPEED, CAMERA_SENSITIVITY);
-    model_ = glm::mat4(1.0f);
 }
 
 GLuint
@@ -86,12 +87,12 @@ GameScene::GenerateArrayTexture()
 void
 GameScene::UpdatePerFrame()
 {
-    model_ = glm::rotate(model_, GetDeltaTime() * glm::radians(50.0f), glm::vec3(1.0f, 1.0f, 0.0f));
-
     std::unique_ptr<Block> grass_block = BlockFactory::CreateBlock(BlockEnum::BlockId::GRASS_BLOCK);
     const auto& verticies_map = grass_block->GetVerticiesVaoMap();
     const auto& texture_layers_map = grass_block->GetTextureLayersVaoMap();
 
+    //TODO: introduce an AddVerticies(std::vector<float>& vertices, const glm::vec3& position) function (possibly in a chunk class)
+    //UpdatePerFrame() should only be responsible for rendering - call some method in chunk class to get VAO, and also some method to get model matrix
     std::vector<float> vertices_VAO;
     for (const auto& [face, verticies] : verticies_map) {
         vertices_VAO.insert(vertices_VAO.end(), verticies.begin(), verticies.end()); //insert verticies for all faces
@@ -138,6 +139,24 @@ GameScene::UpdatePerFrame()
 
     glVertexAttribIPointer(TEX_LAYER_LOCATION, 1, GL_INT, 1 * sizeof(int), (void*)0); // texture layer
     glEnableVertexAttribArray(TEX_LAYER_LOCATION);
+
+    //send model matrix to shader
+    glm::mat4 model = glm::mat4(1.0f);
+    Window::GetActiveWindow()->GetShader().SetMat4("model", model);
+
+    //render
+    //PER-BLOCK-RENDERING: EXTREMELY BAD!!!!!!!!!!!!!!!!!!! LOOK INTO BATCHED RENDERING
+    glBindVertexArray(VAO_);
+    for (int i = 0; i < 16; i++) {
+        for (int j = 0; j < 16; j++) {
+            for (int k = 0; k < 16; k++) {
+                model = glm::mat4(1.0f);
+                model = glm::translate(model, glm::vec3(i, j, k));
+                Window::GetActiveWindow()->GetShader().SetMat4("model", model);
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+            }
+        }
+    }
 }
 
 void

@@ -29,6 +29,7 @@ class Window {
         void SetShader(Shader* s);
         inline void SetScene(Scene* s) { scene_ = s; }
 
+        inline const Shader& GetShader() const { return *shader_; }
         inline int GetWindowWidth() const { return window_width_; }
         inline int GetWindowHeight() const { return window_height_; }
 
@@ -44,7 +45,6 @@ class Window {
         static void WindowResizeCallback(GLFWwindow* glfw_window, int w, int h);
         void HandleResize(int w, int h);
 
-        const glm::mat4 GetModelMatrix() const;
         const glm::mat4 GetViewMatrix() const;
         const glm::mat4 GetProjectionMatrix() const;
 

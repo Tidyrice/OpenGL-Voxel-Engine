@@ -8,6 +8,7 @@ Block::GetVerticiesVaoMap()
     return verticies_map_;
 }
 
+//THIS NEEDS TO CHANGE: VERTICIES CAN USE WORLD COORDINATES)
 std::map<BlockFace, std::vector<float>> Block::verticies_map_ = {
     {BlockFace::FRONT, {
         -0.5f, -0.5f, -0.5f,  0.0f,  0.0f,

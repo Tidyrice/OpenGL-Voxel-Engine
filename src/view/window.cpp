@@ -47,7 +47,7 @@ Window::RegisterWindowCallbacks()
     
     shader_->SetMat4("projection", GetProjectionMatrix());
 
-    //TEMP: create texture array
+    //create an bind texture array
     GLuint texture_arr = scene_->GenerateArrayTexture();
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D_ARRAY, texture_arr);
@@ -82,25 +82,16 @@ Window::RenderScene()
 {
     glfwPollEvents();
 
-    UpdateDeltaTime();
-    scene_->Update(); //let scene know that there is a new frame
-
-    //clear the screen
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     shader_->UseShader();
 
-    //send model matrix to shader
-    shader_->SetMat4("model", GetModelMatrix());
+    UpdateDeltaTime();
+    scene_->Update(); //let scene know that there is a new frame
 
     //send view matrix to shader
     shader_->SetMat4("view", GetViewMatrix());
-
-    //render
-    glBindVertexArray(scene_->GetVAO());
-    glDrawArrays(GL_TRIANGLES, 0, 36);
-    // glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0); //use EBO
 
     glfwSwapBuffers(glfw_window_ptr_);
 }
@@ -134,12 +125,6 @@ void Window::HandleResize(int w, int h)
     glViewport(0, 0, w, h);
     window_width_ = w;
     window_height_ = h;
-}
-
-const glm::mat4
-Window::GetModelMatrix() const
-{
-    return scene_->GetModelMatrix();
 }
 
 const glm::mat4

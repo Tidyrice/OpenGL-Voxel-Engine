@@ -15,12 +15,8 @@ class Scene {
         void Update(); //called every frame
         virtual GLuint GenerateArrayTexture() = 0;
 
-        virtual glm::mat4 GetModelMatrix() const; //temporary. Need to embed this information in data sent to Window somehow for each block
         glm::mat4 GetViewMatrix() const; //we can return by value because of RVO (copy elision)
         glm::mat4 GetProjectionMatrix() const;
-
-        inline GLuint GetVAO() const { return VAO_; }
-        inline GLuint GetEBO() const { return EBO_; }
 
         virtual void HandleNormalKeys(int key, int action) = 0;
         virtual void HandleMouseMovement(double x, double y) = 0;
@@ -33,7 +29,6 @@ class Scene {
         GLuint VAO_, EBO_;
         GLuint pos_tex_VBO_; //holds position (vec3) and texture coordinates (vec2)
         GLuint layer_VBO_; //holds texture layer (int)
-        glm::mat4 model_; //model matrix
         std::unique_ptr<Camera> camera_;
 };
 
