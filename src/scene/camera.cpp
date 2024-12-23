@@ -7,7 +7,7 @@
 
 Camera::Camera(float speed, float sensitity) : speed_{speed}, sensitivity_{sensitity}
 {
-    camera_pos_ = glm::vec3(0.0f, 0.0f, 3.0f);
+    camera_pos_ = glm::vec3(0.0f, 0.0f, 0.0f);
     yaw_ = -90.0f;
     pitch_ = 0.0f;
 }

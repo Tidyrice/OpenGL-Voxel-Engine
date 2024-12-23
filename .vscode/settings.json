@@ -59,6 +59,25 @@
         "variant": "cpp",
         "fstream": "cpp",
         "codecvt": "cpp",
-        "map": "cpp"
+        "map": "cpp",
+        "forward_list": "cpp",
+        "ios": "cpp",
+        "list": "cpp",
+        "locale": "cpp",
+        "xfacet": "cpp",
+        "xhash": "cpp",
+        "xiosbase": "cpp",
+        "xlocale": "cpp",
+        "xlocbuf": "cpp",
+        "xlocinfo": "cpp",
+        "xlocmes": "cpp",
+        "xlocmon": "cpp",
+        "xlocnum": "cpp",
+        "xloctime": "cpp",
+        "xmemory": "cpp",
+        "xstring": "cpp",
+        "xtr1common": "cpp",
+        "xtree": "cpp",
+        "xutility": "cpp"
     }
 }

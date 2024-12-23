@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include "block_enums.h"
+#include <glm/glm.hpp>
 
 using namespace BlockEnum;
 
@@ -15,8 +16,12 @@ class Block {
 
         virtual BlockId GetId() const = 0;
         virtual BlockOpacity GetOpacity() const = 0;
-        static const std::map<BlockFace, std::vector<float>>& GetVerticiesVaoMap(); //contains vertex positions and texture coordinates (static casue all blocks have the same verticies)
-        virtual const std::map<BlockFace, std::vector<int>>& GetTextureLayersVaoMap() const = 0; //layers returned in the order: FRONT, LEFT, BACK, RIGHT, TOP, BOTTOM
+
+        //appends verticies (position + texture coordinates) for the face for the block at the specified coordinates (in chunk space)
+        static void AddVerticies(std::vector<float>& vao, const BlockFace face, const glm::vec3& position);
+
+        //appends texture layers for the specified block face
+        virtual void AddTextureLayers(std::vector<int>& vao, const BlockFace face) const = 0;
 
     private:
         static std::map<BlockFace, std::vector<float>> verticies_map_;

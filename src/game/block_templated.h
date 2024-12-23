@@ -16,17 +16,12 @@ class BlockTemplated : public Block {
             return T::opacity_;
         };
 
-        inline const std::map<BlockFace, std::vector<int>>& GetTextureLayersVaoMap() const override { //FRONT, LEFT, BACK, RIGHT, TOP, BOTTOM
-            return GenerateTextureLayersVaoMap();
-        };
-
-    private:
-        static std::map<BlockFace, std::vector<int>>& GenerateTextureLayersVaoMap();
+        void AddTextureLayers(std::vector<int>& vao, const BlockFace face) const override;
 };
 
-template <typename T>
-std::map<BlockFace, std::vector<int>>&
-BlockTemplated<T>::GenerateTextureLayersVaoMap()
+template<typename T>
+void
+BlockTemplated<T>::AddTextureLayers(std::vector<int>& vao, const BlockFace face) const
 {
     //initialize texture layers map (using lambda so it only runs once)
     static std::map<BlockFace, std::vector<int>> texture_layers_map = []() {
@@ -38,7 +33,10 @@ BlockTemplated<T>::GenerateTextureLayersVaoMap()
         return temp_map;
     }();
 
-    return texture_layers_map;
+    std::vector<int>& new_texture_layers = texture_layers_map.at(face);
+    for (int i = 0; i < new_texture_layers.size(); i++) {
+        vao.push_back(new_texture_layers[i]);
+    }
 }
 
 #endif // BLOCK_TEMPLATED_H

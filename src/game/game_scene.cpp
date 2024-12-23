@@ -88,28 +88,29 @@ void
 GameScene::UpdatePerFrame()
 {
     std::unique_ptr<Block> grass_block = BlockFactory::CreateBlock(BlockEnum::BlockId::GRASS_BLOCK);
-    const auto& verticies_map = grass_block->GetVerticiesVaoMap();
-    const auto& texture_layers_map = grass_block->GetTextureLayersVaoMap();
 
-    //TODO: introduce an AddVerticies(std::vector<float>& vertices, const glm::vec3& position) function (possibly in a chunk class)
-    //UpdatePerFrame() should only be responsible for rendering - call some method in chunk class to get VAO, and also some method to get model matrix
     std::vector<float> vertices_VAO;
-    for (const auto& [face, verticies] : verticies_map) {
-        vertices_VAO.insert(vertices_VAO.end(), verticies.begin(), verticies.end()); //insert verticies for all faces
-    }
-
     std::vector<int> texture_layers_VAO;
-    for (const auto& [face, texture_layers] : texture_layers_map) {
-        texture_layers_VAO.insert(texture_layers_VAO.end(), texture_layers.begin(), texture_layers.end()); //insert texture layers for all faces
+
+    uint32_t kChunkSize = 8;
+    for (int i = 0; i < kChunkSize; i++) {
+        for (int j = 0; j < kChunkSize; j++) {
+            for (int k = 0; k < kChunkSize; k++) {
+                for (int block_face = 0; block_face < 6; block_face++) {
+                    grass_block->AddVerticies(vertices_VAO, static_cast<BlockFace>(block_face), glm::vec3(i, j, k));
+                    grass_block->AddTextureLayers(texture_layers_VAO, static_cast<BlockFace>(block_face));
+                }
+            }
+        }
     }
 
     unsigned int indices[] = {
-        // 0, 1, 2, 2, 3, 0,  // Back face
-        // 4, 5, 6, 6, 7, 4,  // Front face
-        // 8, 9, 10, 10, 11, 8,  // Left face
-        // 12, 13, 14, 14, 15, 12,  // Right face
-        // 16, 17, 18, 18, 19, 16,  // Bottom face
-        // 20, 21, 22, 22, 23, 20   // Top face
+        0, 1, 2, 2, 3, 0,  // Back face
+        4, 5, 6, 6, 7, 4,  // Front face
+        8, 9, 10, 10, 11, 8,  // Left face
+        12, 13, 14, 14, 15, 12,  // Right face
+        16, 17, 18, 18, 19, 16,  // Bottom face
+        20, 21, 22, 22, 23, 20   // Top face
     };
 
     glGenVertexArrays(1, &VAO_);
@@ -145,18 +146,8 @@ GameScene::UpdatePerFrame()
     Window::GetActiveWindow()->GetShader().SetMat4("model", model);
 
     //render
-    //PER-BLOCK-RENDERING: EXTREMELY BAD!!!!!!!!!!!!!!!!!!! LOOK INTO BATCHED RENDERING
-    glBindVertexArray(VAO_);
-    for (int i = 0; i < 16; i++) {
-        for (int j = 0; j < 16; j++) {
-            for (int k = 0; k < 16; k++) {
-                model = glm::mat4(1.0f);
-                model = glm::translate(model, glm::vec3(i, j, k));
-                Window::GetActiveWindow()->GetShader().SetMat4("model", model);
-                glDrawArrays(GL_TRIANGLES, 0, 36);
-            }
-        }
-    }
+    // 36 is hardcoded since we're rendering every face for each block
+    glDrawArrays(GL_TRIANGLES, 0, 36* kChunkSize*kChunkSize*kChunkSize);
 }
 
 void
