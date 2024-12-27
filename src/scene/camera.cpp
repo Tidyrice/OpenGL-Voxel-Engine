@@ -5,11 +5,10 @@
 #include "window.h"
 #include <iostream>
 
-Camera::Camera(float speed, float sensitity) : speed_{speed}, sensitivity_{sensitity}
+Camera::Camera(float speed, float sensitity, glm::vec3 position, float yaw, float pitch)
+    : speed_{speed}, sensitivity_{sensitity}, camera_pos_{position}, yaw_{yaw}, pitch_{pitch}
 {
-    camera_pos_ = glm::vec3(0.0f, 0.0f, 0.0f);
-    yaw_ = -90.0f;
-    pitch_ = 0.0f;
+    
 }
 
 glm::mat4

@@ -8,6 +8,9 @@ std::unique_ptr<Block>
 BlockFactory::CreateBlock(BlockId id)
 {
     switch (id) {
+        case BlockId::AIR:
+            return nullptr;
+            break;
         case BlockId::GRASS_BLOCK:
             return std::make_unique<GrassBlock>();
             break;

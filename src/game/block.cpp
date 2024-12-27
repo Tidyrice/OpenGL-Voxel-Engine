@@ -2,7 +2,7 @@
 
 Block::~Block() {}
 
-void
+uint32_t
 Block::AddVerticies(std::vector<float>& vao, const BlockFace face, const glm::vec3& position)
 {
     std::vector<float>& new_verticies = verticies_map_.at(face);
@@ -21,34 +21,12 @@ Block::AddVerticies(std::vector<float>& vao, const BlockFace face, const glm::ve
             vao.push_back(new_verticies[i]);
         }
     }
+
+    return 6;
 }
 
 std::map<BlockFace, std::vector<float>> Block::verticies_map_ = {
-    {BlockFace::FRONT, {
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f,  1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f,  1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,
-    }},
-    {BlockFace::LEFT, {
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f,  1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f,  1.0f,
-        -0.5f, -0.5f, -0.5f,  1.0f,  0.0f,
-    }},
-    {BlockFace::BACK, {
-         0.5f, -0.5f,  0.5f,  0.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f,  1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f,  1.0f,
-        -0.5f, -0.5f,  0.5f,  1.0f,  0.0f,
-    }},
-    {BlockFace::RIGHT, {
+    {BlockFace::X_POS, {
         0.5f, -0.5f, -0.5f,  0.0f,  0.0f,
         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,
         0.5f,  0.5f,  0.5f,  1.0f,  1.0f,
@@ -56,7 +34,31 @@ std::map<BlockFace, std::vector<float>> Block::verticies_map_ = {
         0.5f,  0.5f,  0.5f,  1.0f,  1.0f,
         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,
     }},
-    {BlockFace::TOP, {
+    {BlockFace::X_NEG, {
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,
+        -0.5f,  0.5f, -0.5f,  1.0f,  1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f,  1.0f,  1.0f,
+        -0.5f, -0.5f, -0.5f,  1.0f,  0.0f,
+    }},
+    {BlockFace::Z_POS, {
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,
+        -0.5f,  0.5f,  0.5f,  1.0f,  1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f,  1.0f,  1.0f,
+        -0.5f, -0.5f,  0.5f,  1.0f,  0.0f,
+    }},
+    {BlockFace::Z_NEG, {
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f,  1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f,  1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,
+    }},
+    {BlockFace::Y_POS, {
         -0.5f,  0.5f, -0.5f,  0.0f,  0.0f,
         -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,
          0.5f,  0.5f,  0.5f,  1.0f,  1.0f,
@@ -64,12 +66,12 @@ std::map<BlockFace, std::vector<float>> Block::verticies_map_ = {
          0.5f,  0.5f,  0.5f,  1.0f,  1.0f,
          0.5f,  0.5f, -0.5f,  1.0f,  0.0f,
     }},
-    {BlockFace::BOTTOM, {
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f,  1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f,  1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f,  1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,
+    {BlockFace::Y_NEG, {
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f,  1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,
     }}
 };

@@ -5,7 +5,7 @@
 
 class Camera {
     public:
-        Camera(float speed, float sensitity);
+        Camera(float speed, float sensitity, glm::vec3 position, float yaw, float pitch);
         ~Camera() = default;
 
         glm::mat4 GetViewMatrix();

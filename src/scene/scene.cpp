@@ -1,6 +1,7 @@
 #include "scene.h"
 #include "camera.h"
 #include "window.h"
+#include <stdexcept>
 
 Scene::~Scene() = default; //must define pure virtual destructor
 

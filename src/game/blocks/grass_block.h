@@ -8,10 +8,10 @@ class GrassBlock : public BlockTemplated<GrassBlock> {
 };
 
 std::map<BlockFace, BlockTexture> GrassBlock::texture_layers_ = {
-    {BlockFace::FRONT, BlockTexture::GRASS_SIDE},
-    {BlockFace::LEFT, BlockTexture::GRASS_SIDE},
-    {BlockFace::BACK, BlockTexture::GRASS_SIDE},
-    {BlockFace::RIGHT, BlockTexture::GRASS_SIDE},
-    {BlockFace::TOP, BlockTexture::GRASS_TOP},
-    {BlockFace::BOTTOM, BlockTexture::DIRT},
+    {BlockFace::X_POS, BlockTexture::GRASS_SIDE},
+    {BlockFace::X_NEG, BlockTexture::GRASS_SIDE},
+    {BlockFace::Z_POS, BlockTexture::GRASS_SIDE},
+    {BlockFace::Z_NEG, BlockTexture::GRASS_SIDE},
+    {BlockFace::Y_POS, BlockTexture::GRASS_TOP},
+    {BlockFace::Y_NEG, BlockTexture::DIRT},
 };

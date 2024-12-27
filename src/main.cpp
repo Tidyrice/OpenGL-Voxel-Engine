@@ -34,6 +34,8 @@ int main(int argc, char* argv[]) {
 
     //GL configuration
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE); // cull back face
+    glCullFace(GL_BACK);
 
     //shader initialization
     Shader shader{VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH};

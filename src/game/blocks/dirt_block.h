@@ -8,10 +8,10 @@ class DirtBlock : public BlockTemplated<DirtBlock> {
 };
 
 std::map<BlockFace, BlockTexture> DirtBlock::texture_layers_ = {
-    {BlockFace::FRONT, BlockTexture::DIRT},
-    {BlockFace::LEFT, BlockTexture::DIRT},
-    {BlockFace::BACK, BlockTexture::DIRT},
-    {BlockFace::RIGHT, BlockTexture::DIRT},
-    {BlockFace::TOP, BlockTexture::DIRT},
-    {BlockFace::BOTTOM, BlockTexture::DIRT},
+    {BlockFace::X_POS, BlockTexture::DIRT},
+    {BlockFace::X_NEG, BlockTexture::DIRT},
+    {BlockFace::Z_POS, BlockTexture::DIRT},
+    {BlockFace::Z_NEG, BlockTexture::DIRT},
+    {BlockFace::Y_POS, BlockTexture::DIRT},
+    {BlockFace::Y_NEG, BlockTexture::DIRT},
 };

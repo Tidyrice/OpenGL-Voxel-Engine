@@ -13,6 +13,7 @@
 #include <block_factory.h>
 #include "window.h"
 #include "shader.h"
+#include "chunk.h"
 
 //locations of vertex attributes in shader
 constexpr uint32_t VERTEX_POS_LOCATION = 0;
@@ -21,7 +22,7 @@ constexpr uint32_t TEX_LAYER_LOCATION = 2;
 
 GameScene::GameScene(): Scene{}
 {
-    camera_ = std::make_unique<Camera>(CAMERA_SPEED, CAMERA_SENSITIVITY);
+    camera_ = std::make_unique<Camera>(CAMERA_SPEED, CAMERA_SENSITIVITY, glm::vec3(0.0f, CHUNK_HEIGHT + 1.0f, 0.0f), CAMERA_YAW, CAMERA_PITCH);
 }
 
 GLuint
@@ -92,17 +93,20 @@ GameScene::UpdatePerFrame()
     std::vector<float> vertices_VAO;
     std::vector<int> texture_layers_VAO;
 
-    uint32_t kChunkSize = 8;
-    for (int i = 0; i < kChunkSize; i++) {
-        for (int j = 0; j < kChunkSize; j++) {
-            for (int k = 0; k < kChunkSize; k++) {
-                for (int block_face = 0; block_face < 6; block_face++) {
-                    grass_block->AddVerticies(vertices_VAO, static_cast<BlockFace>(block_face), glm::vec3(i, j, k));
-                    grass_block->AddTextureLayers(texture_layers_VAO, static_cast<BlockFace>(block_face));
-                }
-            }
-        }
-    }
+    // uint32_t kChunkSize = 8;
+    // for (int i = 0; i < kChunkSize; i++) {
+    //     for (int j = 0; j < kChunkSize; j++) {
+    //         for (int k = 0; k < kChunkSize; k++) {
+    //             for (int block_face = 0; block_face < 6; block_face++) {
+    //                 grass_block->AddVerticies(vertices_VAO, static_cast<BlockFace>(block_face), glm::vec3(i, j, k));
+    //                 grass_block->AddTextureLayers(texture_layers_VAO, static_cast<BlockFace>(block_face));
+    //             }
+    //         }
+    //     }
+    // }
+
+    Chunk chunk;
+    uint32_t num_verticies = chunk.AddVerticiesAndTextureLayers(vertices_VAO, texture_layers_VAO);
 
     unsigned int indices[] = {
         0, 1, 2, 2, 3, 0,  // Back face
@@ -146,8 +150,7 @@ GameScene::UpdatePerFrame()
     Window::GetActiveWindow()->GetShader().SetMat4("model", model);
 
     //render
-    // 36 is hardcoded since we're rendering every face for each block
-    glDrawArrays(GL_TRIANGLES, 0, 36* kChunkSize*kChunkSize*kChunkSize);
+    glDrawArrays(GL_TRIANGLES, 0, num_verticies);
 }
 
 void

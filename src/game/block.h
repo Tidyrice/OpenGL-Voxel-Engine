@@ -18,7 +18,8 @@ class Block {
         virtual BlockOpacity GetOpacity() const = 0;
 
         //appends verticies (position + texture coordinates) for the face for the block at the specified coordinates (in chunk space)
-        static void AddVerticies(std::vector<float>& vao, const BlockFace face, const glm::vec3& position);
+        //returns number of verticies added
+        static uint32_t AddVerticies(std::vector<float>& vao, const BlockFace face, const glm::vec3& position);
 
         //appends texture layers for the specified block face
         virtual void AddTextureLayers(std::vector<int>& vao, const BlockFace face) const = 0;

@@ -38,12 +38,12 @@ enum class BlockOpacity {
 };
 
 enum class BlockFace {
-    FRONT = 0, // +x
-    LEFT, // -z
-    BACK, // -x
-    RIGHT, // +z
-    TOP, // +y
-    BOTTOM, // -y
+    X_POS = 0,
+    X_NEG,
+    Z_POS, // positive z comes OUT of the screen
+    Z_NEG,
+    Y_POS,
+    Y_NEG,
 };
 
 }
