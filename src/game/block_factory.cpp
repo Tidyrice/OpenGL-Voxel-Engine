@@ -4,6 +4,18 @@
 #include "blocks/dirt_block.h"
 #include "blocks/stone_block.h"
 
+//NOTE: may need mutex for thread safety
+std::unordered_map<BlockId, std::unique_ptr<Block>> BlockFactory::block_map_;
+
+Block*
+BlockFactory::GetBlock(BlockId id)
+{
+    if (block_map_.count(id) == 0) {
+        block_map_[id] = CreateBlock(id);
+    }
+    return block_map_[id].get();
+}
+
 std::unique_ptr<Block>
 BlockFactory::CreateBlock(BlockId id)
 {

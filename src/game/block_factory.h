@@ -3,15 +3,21 @@
 
 #include "block.h"
 #include <memory>
+#include <unordered_map>
 
 //This is the interface for the block factory (what the client should use)
+//uses flyweight pattern to create blocks
 
 class BlockFactory {
     public:
-        BlockFactory() = default;
-        ~BlockFactory() = default;
+        BlockFactory() = delete;
+        ~BlockFactory() = delete;
 
+        static Block* GetBlock(BlockId id);
+
+    private:
         static std::unique_ptr<Block> CreateBlock(BlockId id);
+        static std::unordered_map<BlockId, std::unique_ptr<Block>> block_map_;
 };
 
 #endif // BLOCK_FACTORY_H

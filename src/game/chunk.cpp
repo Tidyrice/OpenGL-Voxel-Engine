@@ -35,7 +35,7 @@ Chunk::AddVerticiesAndTextureLayers(std::vector<float>& verticies_vao, std::vect
                 }
                 for (int block_face = 0; block_face < 6; block_face++) {
                     if (IsFaceVisible(glm::vec3(i, j, k), static_cast<BlockFace>(block_face))) {
-                        std::unique_ptr<Block> block = BlockFactory::CreateBlock(blocks_[i][j][k]);
+                        Block* block = BlockFactory::GetBlock(blocks_[i][j][k]);
                         num_verticies += block->AddVerticies(verticies_vao, static_cast<BlockFace>(block_face), glm::vec3(i, j, k));
                         block->AddTextureLayers(textures_vao, static_cast<BlockFace>(block_face));
                     }
@@ -53,26 +53,26 @@ Chunk::IsFaceVisible(const glm::vec3& position, const BlockFace face) const
         return true;
     }
 
-    std::unique_ptr<Block> neighbour_block;
+    Block* neighbour_block;
 
     switch (face) {
         case BlockFace::X_POS:
-            neighbour_block = BlockFactory::CreateBlock(blocks_[position.x + 1][position.y][position.z]);
+            neighbour_block = BlockFactory::GetBlock(blocks_[position.x + 1][position.y][position.z]);
             break;
         case BlockFace::X_NEG:
-            neighbour_block = BlockFactory::CreateBlock(blocks_[position.x - 1][position.y][position.z]);
+            neighbour_block = BlockFactory::GetBlock(blocks_[position.x - 1][position.y][position.z]);
             break;
         case BlockFace::Z_POS:
-            neighbour_block = BlockFactory::CreateBlock(blocks_[position.x][position.y][position.z + 1]);
+            neighbour_block = BlockFactory::GetBlock(blocks_[position.x][position.y][position.z + 1]);
             break;
         case BlockFace::Z_NEG:
-            neighbour_block = BlockFactory::CreateBlock(blocks_[position.x][position.y][position.z - 1]);
+            neighbour_block = BlockFactory::GetBlock(blocks_[position.x][position.y][position.z - 1]);
             break;
         case BlockFace::Y_POS:
-            neighbour_block = BlockFactory::CreateBlock(blocks_[position.x][position.y + 1][position.z]);
+            neighbour_block = BlockFactory::GetBlock(blocks_[position.x][position.y + 1][position.z]);
             break;
         case BlockFace::Y_NEG:
-            neighbour_block = BlockFactory::CreateBlock(blocks_[position.x][position.y - 1][position.z]);
+            neighbour_block = BlockFactory::GetBlock(blocks_[position.x][position.y - 1][position.z]);
             break;
     }
 

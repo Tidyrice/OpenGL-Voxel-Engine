@@ -8,9 +8,7 @@
 #include <iostream>
 #include <GLFW/glfw3.h>
 #include <stb_image.h>
-#include <block_enums.h>
 #include <block_texture_map.h>
-#include <block_factory.h>
 #include "window.h"
 #include "shader.h"
 #include "chunk.h"
@@ -88,22 +86,8 @@ GameScene::GenerateArrayTexture()
 void
 GameScene::UpdatePerFrame()
 {
-    std::unique_ptr<Block> grass_block = BlockFactory::CreateBlock(BlockEnum::BlockId::GRASS_BLOCK);
-
     std::vector<float> vertices_VAO;
     std::vector<int> texture_layers_VAO;
-
-    // uint32_t kChunkSize = 8;
-    // for (int i = 0; i < kChunkSize; i++) {
-    //     for (int j = 0; j < kChunkSize; j++) {
-    //         for (int k = 0; k < kChunkSize; k++) {
-    //             for (int block_face = 0; block_face < 6; block_face++) {
-    //                 grass_block->AddVerticies(vertices_VAO, static_cast<BlockFace>(block_face), glm::vec3(i, j, k));
-    //                 grass_block->AddTextureLayers(texture_layers_VAO, static_cast<BlockFace>(block_face));
-    //             }
-    //         }
-    //     }
-    // }
 
     Chunk chunk;
     uint32_t num_verticies = chunk.AddVerticiesAndTextureLayers(vertices_VAO, texture_layers_VAO);
