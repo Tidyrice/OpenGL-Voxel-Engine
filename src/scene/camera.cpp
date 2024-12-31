@@ -26,14 +26,14 @@ Camera::GetProjectionMatrix(int width, int height)
 void
 Camera::MoveForward()
 {
-    camera_pos_ += GetNormalizedCameraSpeed() * camera_front_;
+    camera_pos_ += GetNormalizedCameraSpeed() * glm::normalize(glm::vec3(camera_front_.x, 0.0f, camera_front_.z));
     UpdateCameraVectors();
 }
 
 void
 Camera::MoveBackward()
 {
-    camera_pos_ -= GetNormalizedCameraSpeed() * camera_front_;
+    camera_pos_ -= GetNormalizedCameraSpeed() * glm::normalize(glm::vec3(camera_front_.x, 0.0f, camera_front_.z));
     UpdateCameraVectors();
 }
 

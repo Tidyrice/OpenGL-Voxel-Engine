@@ -1,8 +1,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define WINDOW_WIDTH 700
-#define WINDOW_HEIGHT 700
+#define WINDOW_WIDTH 1280
+#define WINDOW_HEIGHT 720
 #define WINDOW_NAME "Procedural Generation"
 
 #define VERTEX_SHADER_PATH ASSETS_PATH "/shaders/vertex_shader.glsl"
