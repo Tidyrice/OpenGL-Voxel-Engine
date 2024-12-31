@@ -1,9 +1,14 @@
+#include <glad/glad.h>
 #include "chunk.h"
 #include "game_config.h"
 #include "block_factory.h"
 #include <iostream>
+#include <glm/gtc/matrix_transform.hpp>
+#include <GLFW/glfw3.h>
+#include "window.h"
+#include "shader.h"
 
-Chunk::Chunk()
+Chunk::Chunk(uint32_t x, uint32_t z) : x_{x}, z_{z}
 {
     //currently makes a fun pattern
 
@@ -44,6 +49,61 @@ Chunk::AddVerticiesAndTextureLayers(std::vector<float>& verticies_vao, std::vect
         }
     }
     return num_verticies;
+}
+
+void
+Chunk::RenderChunk() const
+{
+    GLuint VAO, EBO;
+    std::vector<float> vertices_VAO;
+    std::vector<int> texture_layers_VAO;
+
+    uint32_t num_verticies = AddVerticiesAndTextureLayers(vertices_VAO, texture_layers_VAO);
+
+    // unsigned int indices[] = {
+    //     0, 1, 2, 2, 3, 0,  // Back face
+    //     4, 5, 6, 6, 7, 4,  // Front face
+    //     8, 9, 10, 10, 11, 8,  // Left face
+    //     12, 13, 14, 14, 15, 12,  // Right face
+    //     16, 17, 18, 18, 19, 16,  // Bottom face
+    //     20, 21, 22, 22, 23, 20   // Top face
+    // };
+
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &EBO);
+
+    glBindVertexArray(VAO);
+
+    // // EBO (not currently using)
+    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    // POSITION + TEXURE COORDINATES VBO
+    GLuint pos_tex_VBO;
+    glGenBuffers(1, &pos_tex_VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, pos_tex_VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*vertices_VAO.size(), &vertices_VAO[0], GL_STATIC_DRAW); //set pointer to data
+    
+    glVertexAttribPointer(VERTEX_POS_LOCATION, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0); // vertex position
+    glEnableVertexAttribArray(VERTEX_POS_LOCATION);
+    
+    glVertexAttribPointer(TEX_COORD_LOCATION, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float))); // texture coordinates
+    glEnableVertexAttribArray(TEX_COORD_LOCATION);
+
+    // TEXTURE LAYER VBO
+    GLuint layer_VBO;
+    glGenBuffers(1, &layer_VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, layer_VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(int)*texture_layers_VAO.size(), &texture_layers_VAO[0], GL_STATIC_DRAW); //set pointer to data
+
+    glVertexAttribIPointer(TEX_LAYER_LOCATION, 1, GL_INT, 1 * sizeof(int), (void*)0); // texture layer
+    glEnableVertexAttribArray(TEX_LAYER_LOCATION);
+
+    //send model matrix to shader
+    Window::GetActiveWindow()->GetShader().SetMat4("model", GetModelMatrix());
+
+    //render
+    glDrawArrays(GL_TRIANGLES, 0, num_verticies);
 }
 
 bool
@@ -107,4 +167,12 @@ Chunk::IsFaceOnChunkBorder(const glm::vec3& position, const BlockFace face) cons
     }
 
     return false;
+}
+
+glm::mat4
+Chunk::GetModelMatrix() const
+{
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(x_ * CHUNK_WIDTH, 0.0f, z_ * CHUNK_WIDTH));
+    return model;
 }

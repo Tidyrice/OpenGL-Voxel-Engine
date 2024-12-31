@@ -13,11 +13,6 @@
 #include "shader.h"
 #include "chunk.h"
 
-//locations of vertex attributes in shader
-constexpr uint32_t VERTEX_POS_LOCATION = 0;
-constexpr uint32_t TEX_COORD_LOCATION = 1;
-constexpr uint32_t TEX_LAYER_LOCATION = 2;
-
 GameScene::GameScene(): Scene{}
 {
     camera_ = std::make_unique<Camera>(CAMERA_SPEED, CAMERA_SENSITIVITY, glm::vec3(0.0f, CHUNK_HEIGHT + 1.0f, 0.0f), CAMERA_YAW, CAMERA_PITCH);
@@ -89,52 +84,17 @@ GameScene::UpdatePerFrame()
     std::vector<float> vertices_VAO;
     std::vector<int> texture_layers_VAO;
 
-    Chunk chunk;
-    uint32_t num_verticies = chunk.AddVerticiesAndTextureLayers(vertices_VAO, texture_layers_VAO);
+    Chunk chunk{0, 0};
+    chunk.RenderChunk();
 
-    unsigned int indices[] = {
-        0, 1, 2, 2, 3, 0,  // Back face
-        4, 5, 6, 6, 7, 4,  // Front face
-        8, 9, 10, 10, 11, 8,  // Left face
-        12, 13, 14, 14, 15, 12,  // Right face
-        16, 17, 18, 18, 19, 16,  // Bottom face
-        20, 21, 22, 22, 23, 20   // Top face
-    };
+    Chunk chunk2{1, 0};
+    chunk2.RenderChunk();
 
-    glGenVertexArrays(1, &VAO_);
-    glGenBuffers(1, &EBO_);
+    Chunk chunk3{0, 1};
+    chunk3.RenderChunk();
 
-    glBindVertexArray(VAO_);
-
-    // EBO (not currently using)
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    // POSITION + TEXURE COORDINATES VBO
-    glGenBuffers(1, &pos_tex_VBO_);
-    glBindBuffer(GL_ARRAY_BUFFER, pos_tex_VBO_);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*vertices_VAO.size(), &vertices_VAO[0], GL_STATIC_DRAW); //set pointer to data
-    
-    glVertexAttribPointer(VERTEX_POS_LOCATION, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0); // vertex position
-    glEnableVertexAttribArray(VERTEX_POS_LOCATION);
-    
-    glVertexAttribPointer(TEX_COORD_LOCATION, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float))); // texture coordinates
-    glEnableVertexAttribArray(TEX_COORD_LOCATION);
-
-    // TEXTURE LAYER VBO
-    glGenBuffers(1, &layer_VBO_);
-    glBindBuffer(GL_ARRAY_BUFFER, layer_VBO_);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(int)*texture_layers_VAO.size(), &texture_layers_VAO[0], GL_STATIC_DRAW); //set pointer to data
-
-    glVertexAttribIPointer(TEX_LAYER_LOCATION, 1, GL_INT, 1 * sizeof(int), (void*)0); // texture layer
-    glEnableVertexAttribArray(TEX_LAYER_LOCATION);
-
-    //send model matrix to shader
-    glm::mat4 model = glm::mat4(1.0f);
-    Window::GetActiveWindow()->GetShader().SetMat4("model", model);
-
-    //render
-    glDrawArrays(GL_TRIANGLES, 0, num_verticies);
+    Chunk chunk4{1, 1};
+    chunk4.RenderChunk();
 }
 
 void
