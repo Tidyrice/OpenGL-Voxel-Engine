@@ -81,19 +81,20 @@ GameScene::GenerateArrayTexture()
 void
 GameScene::UpdatePerFrame()
 {
+    std::cout << "GameScene::UpdatePerFrame(): time since last frame: " << GetDeltaTime() * 1000 << " ms" << std::endl;
     std::vector<float> vertices_VAO;
     std::vector<int> texture_layers_VAO;
 
-    Chunk chunk{0, 0};
+    Chunk chunk{{0, 0}};
     chunk.RenderChunk();
 
-    Chunk chunk2{1, 0};
+    Chunk chunk2{{1, 0}};
     chunk2.RenderChunk();
 
-    Chunk chunk3{0, 1};
+    Chunk chunk3{{0, 1}};
     chunk3.RenderChunk();
 
-    Chunk chunk4{1, 1};
+    Chunk chunk4{{1, 1}};
     chunk4.RenderChunk();
 }
 

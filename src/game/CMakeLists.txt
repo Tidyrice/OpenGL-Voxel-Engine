@@ -1,5 +1,5 @@
 # Create a library for the game module
-add_library(game game_scene.cpp block_factory.cpp block.cpp block_texture_map.h chunk.cpp)
+add_library(game game_scene.cpp block_factory.cpp block.cpp block_texture_map.h chunk.cpp chunk_pos_hash.cpp)
 target_compile_definitions(game PRIVATE TEXTURES_PATH="${ASSETS_PATH}/textures")
 target_compile_definitions(game PRIVATE VERTEX_POS_LOCATION=0)
 target_compile_definitions(game PRIVATE TEX_COORD_LOCATION=1)

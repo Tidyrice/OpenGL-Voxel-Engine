@@ -8,7 +8,10 @@
 #include "window.h"
 #include "shader.h"
 
-Chunk::Chunk(uint32_t x, uint32_t z) : x_{x}, z_{z}
+std::unordered_map<ChunkPos, Chunk*, ChunkPosHash> Chunk::chunk_map_;
+std::mutex Chunk::chunk_map_mutex_;
+
+Chunk::Chunk(ChunkPos pos) : pos_{pos}
 {
     //currently makes a fun pattern
 
@@ -26,6 +29,15 @@ Chunk::Chunk(uint32_t x, uint32_t z) : x_{x}, z_{z}
             }
         }
     }
+
+    std::lock_guard<std::mutex> lock(chunk_map_mutex_);
+    chunk_map_[pos_] = this;
+}
+
+Chunk::~Chunk()
+{
+    std::lock_guard<std::mutex> lock(chunk_map_mutex_);
+    chunk_map_.erase(pos_);
 }
 
 uint32_t
@@ -173,6 +185,6 @@ glm::mat4
 Chunk::GetModelMatrix() const
 {
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(x_ * CHUNK_WIDTH, 0.0f, z_ * CHUNK_WIDTH));
+    model = glm::translate(model, glm::vec3(pos_.x * CHUNK_WIDTH, 0.0f, pos_.z * CHUNK_WIDTH));
     return model;
 }
