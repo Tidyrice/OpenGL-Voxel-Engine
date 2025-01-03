@@ -4,11 +4,14 @@
 #include <cstdint>
 
 struct ChunkPos {
-    ChunkPos(uint32_t x, uint32_t z): x{x}, z{z} {}
+    ChunkPos(int64_t x, int64_t z): x{x}, z{z} {}
     bool operator== (const ChunkPos& other) const {
         return x == other.x && z == other.z;
     }
-    uint32_t x, z;
+    ChunkPos operator+ (const ChunkPos& other) const {
+        return ChunkPos{x + other.x, z + other.z};
+    }
+    int64_t x, z;
 };
 
 #endif //CHUNK_POS_H

@@ -121,31 +121,68 @@ Chunk::RenderChunk() const
 bool
 Chunk::IsFaceVisible(const glm::vec3& position, const BlockFace face) const
 {
-    if (IsFaceOnChunkBorder(position, face)) {
-        return true;
-    }
-
     Block* neighbour_block;
+    
+    if (IsFaceOnChunkBorder(position, face)) { //get neighbour block if current block is on chunk border
+        if (face == BlockFace::Y_POS || face == BlockFace::Y_NEG) {
+            return true;
+        }
 
-    switch (face) {
-        case BlockFace::X_POS:
-            neighbour_block = BlockFactory::GetBlock(blocks_[position.x + 1][position.y][position.z]);
-            break;
-        case BlockFace::X_NEG:
-            neighbour_block = BlockFactory::GetBlock(blocks_[position.x - 1][position.y][position.z]);
-            break;
-        case BlockFace::Z_POS:
-            neighbour_block = BlockFactory::GetBlock(blocks_[position.x][position.y][position.z + 1]);
-            break;
-        case BlockFace::Z_NEG:
-            neighbour_block = BlockFactory::GetBlock(blocks_[position.x][position.y][position.z - 1]);
-            break;
-        case BlockFace::Y_POS:
-            neighbour_block = BlockFactory::GetBlock(blocks_[position.x][position.y + 1][position.z]);
-            break;
-        case BlockFace::Y_NEG:
-            neighbour_block = BlockFactory::GetBlock(blocks_[position.x][position.y - 1][position.z]);
-            break;
+        ChunkPos neighbour_chunk_pos{0, 0};
+        int neighbour_block_x;
+        int neighbour_block_z;
+
+        switch (face) {
+            case BlockFace::X_POS:
+                neighbour_chunk_pos = pos_ + ChunkPos{1, 0};
+                neighbour_block_x = 0;
+                neighbour_block_z = position.z;
+                break;
+            case BlockFace::X_NEG:
+                neighbour_chunk_pos = pos_ + ChunkPos{-1, 0};
+                neighbour_block_x = CHUNK_WIDTH - 1;
+                neighbour_block_z = position.z;
+                break;
+            case BlockFace::Z_POS:
+                neighbour_chunk_pos = pos_ + ChunkPos{0, 1};
+                neighbour_block_x = position.x;
+                neighbour_block_z = 0;
+                break;
+            case BlockFace::Z_NEG:
+                neighbour_chunk_pos = pos_ + ChunkPos{0, -1};
+                neighbour_block_x = position.x;
+                neighbour_block_z = CHUNK_WIDTH - 1;
+                break;
+        }
+
+        std::lock_guard<std::mutex> lock(chunk_map_mutex_);
+        if (chunk_map_.count(neighbour_chunk_pos) == 0) {
+            return true;
+        }
+
+        neighbour_block = BlockFactory::GetBlock(chunk_map_.at(neighbour_chunk_pos)->blocks_[neighbour_block_x][position.y][neighbour_block_z]);
+    }
+    else { //get neighbour block from current chunk
+        switch (face) {
+            case BlockFace::X_POS:
+                neighbour_block = BlockFactory::GetBlock(blocks_[position.x + 1][position.y][position.z]);
+                break;
+            case BlockFace::X_NEG:
+                neighbour_block = BlockFactory::GetBlock(blocks_[position.x - 1][position.y][position.z]);
+                break;
+            case BlockFace::Z_POS:
+                neighbour_block = BlockFactory::GetBlock(blocks_[position.x][position.y][position.z + 1]);
+                break;
+            case BlockFace::Z_NEG:
+                neighbour_block = BlockFactory::GetBlock(blocks_[position.x][position.y][position.z - 1]);
+                break;
+            case BlockFace::Y_POS:
+                neighbour_block = BlockFactory::GetBlock(blocks_[position.x][position.y + 1][position.z]);
+                break;
+            case BlockFace::Y_NEG:
+                neighbour_block = BlockFactory::GetBlock(blocks_[position.x][position.y - 1][position.z]);
+                break;
+        }
     }
 
     //if neighbour block is nullptr then it's air (transparent)
