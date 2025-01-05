@@ -20,7 +20,7 @@ class Chunk {
     private:
         bool IsFaceVisible(const glm::vec3& position, const BlockFace face) const;
         bool IsFaceOnChunkBorder(const glm::vec3& position, const BlockFace face) const;
-        uint32_t AddVerticiesAndTextureLayers(std::vector<float>& verticies_vao, std::vector<int>& textures_vao) const; // returns number of verticies added
+        uint32_t AddVerticiesAndTextureLayers(std::vector<float>& verticies_vao, std::vector<int>& textures_vao, std::vector<unsigned int>& ebo) const; // returns number of verticies added
         glm::mat4 GetModelMatrix() const;
 
         static std::unordered_map<ChunkPos, Chunk*, ChunkPosHash> chunk_map_; //holds all active chunks

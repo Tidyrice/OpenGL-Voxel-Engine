@@ -11,6 +11,6 @@
 #define TEX_HEIGHT 16
 
 #define CHUNK_WIDTH 32
-#define CHUNK_HEIGHT 16
+#define CHUNK_HEIGHT 128
 
 #endif // GAME_CONFIG_H

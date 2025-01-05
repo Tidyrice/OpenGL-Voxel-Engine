@@ -87,15 +87,6 @@ GameScene::UpdatePerFrame()
 
     Chunk chunk{{0, 0}};
     chunk.RenderChunk();
-
-    Chunk chunk2{{1, 0}};
-    chunk2.RenderChunk();
-
-    Chunk chunk3{{0, 1}};
-    chunk3.RenderChunk();
-
-    Chunk chunk4{{1, 1}};
-    chunk4.RenderChunk();
 }
 
 void

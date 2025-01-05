@@ -22,11 +22,11 @@ Chunk::Chunk(ChunkPos pos) : pos_{pos}
         row.resize(CHUNK_HEIGHT);
         for (auto& column : row) {
             column.resize(CHUNK_WIDTH, block_id);
-            for (int i = 0; i < column.size(); i++) {
-                if (i%5 == 0) {
-                    column[i] = BlockEnum::BlockId::AIR;
-                }
-            }
+            // for (int i = 0; i < column.size(); i++) {
+            //     if (i%5 == 0) {
+            //         column[i] = BlockEnum::BlockId::AIR;
+            //     }
+            // }
         }
     }
 
@@ -41,7 +41,7 @@ Chunk::~Chunk()
 }
 
 uint32_t
-Chunk::AddVerticiesAndTextureLayers(std::vector<float>& verticies_vao, std::vector<int>& textures_vao) const
+Chunk::AddVerticiesAndTextureLayers(std::vector<float>& verticies_vao, std::vector<int>& textures_vao,std::vector<unsigned int>& ebo) const
 {
     int num_verticies = 0;
     for (int i = 0; i < CHUNK_WIDTH; i++) {
@@ -53,7 +53,7 @@ Chunk::AddVerticiesAndTextureLayers(std::vector<float>& verticies_vao, std::vect
                 for (int block_face = 0; block_face < 6; block_face++) {
                     if (IsFaceVisible(glm::vec3(i, j, k), static_cast<BlockFace>(block_face))) {
                         Block* block = BlockFactory::GetBlock(blocks_[i][j][k]);
-                        num_verticies += block->AddVerticies(verticies_vao, static_cast<BlockFace>(block_face), glm::vec3(i, j, k));
+                        num_verticies += block->AddVerticies(verticies_vao, ebo, num_verticies, static_cast<BlockFace>(block_face), glm::vec3(i, j, k));
                         block->AddTextureLayers(textures_vao, static_cast<BlockFace>(block_face));
                     }
                 }
@@ -69,26 +69,23 @@ Chunk::RenderChunk() const
     GLuint VAO, EBO;
     std::vector<float> vertices_VAO;
     std::vector<int> texture_layers_VAO;
+    std::vector<unsigned int> indices;
 
-    uint32_t num_verticies = AddVerticiesAndTextureLayers(vertices_VAO, texture_layers_VAO);
+    AddVerticiesAndTextureLayers(vertices_VAO, texture_layers_VAO, indices);
 
-    // unsigned int indices[] = {
-    //     0, 1, 2, 2, 3, 0,  // Back face
-    //     4, 5, 6, 6, 7, 4,  // Front face
-    //     8, 9, 10, 10, 11, 8,  // Left face
-    //     12, 13, 14, 14, 15, 12,  // Right face
-    //     16, 17, 18, 18, 19, 16,  // Bottom face
-    //     20, 21, 22, 22, 23, 20   // Top face
-    // };
+    if (vertices_VAO.size() == 0 || texture_layers_VAO.size() == 0 || indices.size() == 0) {
+        std::cerr << "Chunk::RenderChunk(): VAO or EBO is empty" << std::endl;
+        return;
+    }
 
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &EBO);
 
     glBindVertexArray(VAO);
 
-    // // EBO (not currently using)
-    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    // EBO
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int)*indices.size(), &indices[0], GL_STATIC_DRAW);
 
     // POSITION + TEXURE COORDINATES VBO
     GLuint pos_tex_VBO;
@@ -115,7 +112,7 @@ Chunk::RenderChunk() const
     Window::GetActiveWindow()->GetShader().SetMat4("model", GetModelMatrix());
 
     //render
-    glDrawArrays(GL_TRIANGLES, 0, num_verticies);
+    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }
 
 bool

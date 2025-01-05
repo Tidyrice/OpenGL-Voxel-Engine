@@ -28,7 +28,7 @@ BlockTemplated<T>::AddTextureLayers(std::vector<int>& vao, const BlockFace face)
         std::map<BlockFace, std::vector<int>> temp_map;
         for (auto& [face, texture] : T::texture_layers_) {
             int texture_layer = static_cast<int>(texture);
-            temp_map[face] = {texture_layer, texture_layer, texture_layer, texture_layer, texture_layer, texture_layer};
+            temp_map[face] = {texture_layer, texture_layer, texture_layer, texture_layer};
         }
         return temp_map;
     }();
