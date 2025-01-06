@@ -7,11 +7,9 @@ World::World(ChunkPos pos) : current_chunk_pos_{pos}
 {
     AddVisibleChunksToQueue(); //add chunks within render distance to queue (queue is already empty)
 
-    //start threads
-    const auto processor_count = std::thread::hardware_concurrency();
-    std::cout << "World::World(): processor_count: " << processor_count << std::endl;
-    for (int i = 0; i < processor_count-1; i++) {
-        std::thread t(GenerateChunkThreaded, this);
+    //start chunk generation thread (only using one thread for now)
+    for (int i = 0; i < 1; i++) {
+        std::thread t(&World::GenerateChunkThreaded, this);
         t.detach();
     }
 }

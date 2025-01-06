@@ -11,8 +11,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # Find and link OpenGL
 find_package(OpenGL REQUIRED)
 
-# Set global output directory for all executables to root build directory
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+# Set global output directory for all executables to build/bin
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_BINARY_DIR}/bin)
 
 # Define a preprocessor macro for the assets path
 add_compile_definitions(ASSETS_PATH="${ASSETS_PATH}")

@@ -8,10 +8,13 @@ BUILD_DIR="build"
 
 # Parse arguments
 CLEAN=false
+BUILD_TYPE="Release"
 for arg in "$@"; do
     if [ "$arg" == "--clean" ]; then
         CLEAN=true
-        break
+    fi
+    if [ "$arg" == "--debug" ]; then
+        BUILD_TYPE="Debug"
     fi
 done
 
@@ -32,11 +35,12 @@ cd "$BUILD_DIR"
 
 # Step 3: Run CMake to generate the build system
 echo "Running CMake..."
-cmake ..
+echo "Build type: $BUILD_TYPE"
+cmake -DCMAKE_BUILD_TYPE="$BUILD_TYPE" ..
 
 # Step 4: Build the project
 echo "Building the project..."
-cmake --build .
+cmake --build . --config $BUILD_TYPE
 
 # Return to the project root
 cd ..
