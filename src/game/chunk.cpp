@@ -40,9 +40,17 @@ Chunk::~Chunk()
     chunk_map_.erase(pos_);
 }
 
-uint32_t
-Chunk::AddVerticiesAndTextureLayers(std::vector<float>& verticies_vao, std::vector<int>& textures_vao,std::vector<unsigned int>& ebo) const
+void
+Chunk::GenerateVerticiesAndTextureLayers()
 {
+    if (!is_dirty_) {
+        return;
+    }
+
+    vertices_vao_.clear();
+    texture_layers_vao_.clear();
+    ebo_.clear();
+
     int num_verticies = 0;
     for (int i = 0; i < CHUNK_WIDTH; i++) {
         for (int j = 0; j < CHUNK_HEIGHT; j++) {
@@ -53,28 +61,26 @@ Chunk::AddVerticiesAndTextureLayers(std::vector<float>& verticies_vao, std::vect
                 for (int block_face = 0; block_face < 6; block_face++) {
                     if (IsFaceVisible(glm::vec3(i, j, k), static_cast<BlockFace>(block_face))) {
                         Block* block = BlockFactory::GetBlock(blocks_[i][j][k]);
-                        num_verticies += block->AddVerticies(verticies_vao, ebo, num_verticies, static_cast<BlockFace>(block_face), glm::vec3(i, j, k));
-                        block->AddTextureLayers(textures_vao, static_cast<BlockFace>(block_face));
+                        num_verticies += block->AddVerticies(vertices_vao_, ebo_, num_verticies, static_cast<BlockFace>(block_face), glm::vec3(i, j, k));
+                        block->AddTextureLayers(texture_layers_vao_, static_cast<BlockFace>(block_face));
                     }
                 }
             }
         }
     }
-    return num_verticies;
+
+    is_dirty_ = false;
 }
 
 void
-Chunk::RenderChunk() const
+Chunk::RenderChunk()
 {
     GLuint VAO, EBO;
-    std::vector<float> vertices_VAO;
-    std::vector<int> texture_layers_VAO;
-    std::vector<unsigned int> indices;
 
-    AddVerticiesAndTextureLayers(vertices_VAO, texture_layers_VAO, indices);
+    GenerateVerticiesAndTextureLayers();
 
-    if (vertices_VAO.size() == 0 || texture_layers_VAO.size() == 0 || indices.size() == 0) {
-        std::cerr << "Chunk::RenderChunk(): VAO or EBO is empty" << std::endl;
+    if (vertices_vao_.size() == 0 || texture_layers_vao_.size() == 0 || ebo_.size() == 0) {
+        std::cerr << "Chunk::RenderChunk(): vao or EBO is empty" << std::endl;
         return;
     }
 
@@ -85,13 +91,13 @@ Chunk::RenderChunk() const
 
     // EBO
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int)*indices.size(), &indices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int)*ebo_.size(), &ebo_[0], GL_STATIC_DRAW);
 
     // POSITION + TEXURE COORDINATES VBO
     GLuint pos_tex_VBO;
     glGenBuffers(1, &pos_tex_VBO);
     glBindBuffer(GL_ARRAY_BUFFER, pos_tex_VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*vertices_VAO.size(), &vertices_VAO[0], GL_STATIC_DRAW); //set pointer to data
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*vertices_vao_.size(), &vertices_vao_[0], GL_STATIC_DRAW); //set pointer to data
     
     glVertexAttribPointer(VERTEX_POS_LOCATION, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0); // vertex position
     glEnableVertexAttribArray(VERTEX_POS_LOCATION);
@@ -103,7 +109,7 @@ Chunk::RenderChunk() const
     GLuint layer_VBO;
     glGenBuffers(1, &layer_VBO);
     glBindBuffer(GL_ARRAY_BUFFER, layer_VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(int)*texture_layers_VAO.size(), &texture_layers_VAO[0], GL_STATIC_DRAW); //set pointer to data
+    glBufferData(GL_ARRAY_BUFFER, sizeof(int)*texture_layers_vao_.size(), &texture_layers_vao_[0], GL_STATIC_DRAW); //set pointer to data
 
     glVertexAttribIPointer(TEX_LAYER_LOCATION, 1, GL_INT, 1 * sizeof(int), (void*)0); // texture layer
     glEnableVertexAttribArray(TEX_LAYER_LOCATION);
@@ -112,7 +118,7 @@ Chunk::RenderChunk() const
     Window::GetActiveWindow()->GetShader().SetMat4("model", GetModelMatrix());
 
     //render
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, ebo_.size(), GL_UNSIGNED_INT, 0);
 }
 
 bool

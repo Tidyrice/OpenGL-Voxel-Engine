@@ -15,12 +15,12 @@ class Chunk {
         Chunk(ChunkPos pos);
         ~Chunk();
 
-        void RenderChunk() const;
+        void RenderChunk();
 
     private:
         bool IsFaceVisible(const glm::vec3& position, const BlockFace face) const;
         bool IsFaceOnChunkBorder(const glm::vec3& position, const BlockFace face) const;
-        uint32_t AddVerticiesAndTextureLayers(std::vector<float>& verticies_vao, std::vector<int>& textures_vao, std::vector<unsigned int>& ebo) const; // returns number of verticies added
+        void GenerateVerticiesAndTextureLayers();
         glm::mat4 GetModelMatrix() const;
 
         static std::unordered_map<ChunkPos, Chunk*, ChunkPosHash> chunk_map_; //holds all active chunks
@@ -28,6 +28,11 @@ class Chunk {
 
         std::vector<std::vector<std::vector<BlockEnum::BlockId>>> blocks_; //blocks_[x][y][z]
         ChunkPos pos_;
+
+        bool is_dirty_ = true; //if the chunk has needs rerendering
+        std::vector<float> vertices_vao_;
+        std::vector<int> texture_layers_vao_;
+        std::vector<unsigned int> ebo_;
 };
 
 

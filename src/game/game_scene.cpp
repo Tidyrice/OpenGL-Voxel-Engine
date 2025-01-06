@@ -85,7 +85,7 @@ GameScene::UpdatePerFrame()
     std::vector<float> vertices_VAO;
     std::vector<int> texture_layers_VAO;
 
-    Chunk chunk{{0, 0}};
+    static Chunk chunk{{0, 0}};
     chunk.RenderChunk();
 }
 
