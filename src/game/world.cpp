@@ -5,7 +5,7 @@
 
 World::World(ChunkPos pos) : current_chunk_pos_{pos}
 {
-    AddVisibleChunksToQueue();
+    AddVisibleChunksToQueue(); //add chunks within render distance to queue (queue is already empty)
 
     //start threads
     const auto processor_count = std::thread::hardware_concurrency();
@@ -56,6 +56,7 @@ World::UpdateChunkPos(const ChunkPos& pos)
     current_chunk_pos_ = pos;
     std::cout << "World::UpdateChunkPos(): current_chunk_pos_: " << current_chunk_pos_.x << ", " << current_chunk_pos_.z << std::endl;
 
+    chunk_queue_ = std::queue<ChunkPos>(); //clear queue
     AddVisibleChunksToQueue();
 }
 
@@ -94,7 +95,6 @@ void
 World::AddVisibleChunksToQueue()
 {
     std::lock_guard<std::recursive_mutex> lock(chunk_queue_mutex_);
-    chunk_queue_ = std::queue<ChunkPos>(); //clear queue
     for (int i = -renderDistance_; i <= renderDistance_; i++) { //add all chunks in render distance to queue (TODO: CHANGE ORDER OF GENERATION TO NEAREST FIRST)
         for (int j = -renderDistance_; j <= renderDistance_; j++) {
             AddToChunkQueue({current_chunk_pos_.x + i, current_chunk_pos_.z + j});
