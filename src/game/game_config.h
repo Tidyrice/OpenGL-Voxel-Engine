@@ -3,6 +3,7 @@
 
 #define CAMERA_SPEED 30.0f
 #define CAMERA_SENSITIVITY 0.1f
+#define RENDER_DISTANCE 2 //render distance in chunks
 
 #define CAMERA_PITCH 0.0f
 #define CAMERA_YAW 0.0f

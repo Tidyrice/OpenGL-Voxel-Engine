@@ -10,6 +10,7 @@ class Camera {
 
         glm::mat4 GetViewMatrix();
         glm::mat4 GetProjectionMatrix(int width, int height);
+        glm::vec3 GetPosition() const { return camera_pos_; }
 
         void MoveForward();
         void MoveBackward();
@@ -27,6 +28,9 @@ class Camera {
 
         float speed_;
         float sensitivity_;
+        float fov_ = 45.0f; // field of view
+        float near_ = 0.1f; //near clipping plane
+        float far_ = 1000.0f; //far clipping plane
 
         glm::vec3 camera_pos_;
         glm::vec3 camera_front_; // points the direction camera is facing

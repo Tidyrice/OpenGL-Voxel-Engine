@@ -7,11 +7,9 @@
 #include <GLFW/glfw3.h>
 #include "window.h"
 #include "shader.h"
+#include "world.h"
 
-std::unordered_map<ChunkPos, Chunk*, ChunkPosHash> Chunk::chunk_map_;
-std::mutex Chunk::chunk_map_mutex_;
-
-Chunk::Chunk(ChunkPos pos) : pos_{pos}
+Chunk::Chunk(ChunkPos pos, World* world) : pos_{pos}, world_{world}
 {
     //currently makes a fun pattern
 
@@ -29,19 +27,15 @@ Chunk::Chunk(ChunkPos pos) : pos_{pos}
             // }
         }
     }
-
-    std::lock_guard<std::mutex> lock(chunk_map_mutex_);
-    chunk_map_[pos_] = this;
 }
 
 Chunk::~Chunk()
 {
-    std::lock_guard<std::mutex> lock(chunk_map_mutex_);
-    chunk_map_.erase(pos_);
+
 }
 
 void
-Chunk::GenerateVerticiesAndTextureLayers()
+Chunk::GenerateChunkVerticies()
 {
     if (!is_dirty_) {
         return;
@@ -77,7 +71,7 @@ Chunk::RenderChunk()
 {
     GLuint VAO, EBO;
 
-    GenerateVerticiesAndTextureLayers();
+    GenerateChunkVerticies();
 
     if (vertices_vao_.size() == 0 || texture_layers_vao_.size() == 0 || ebo_.size() == 0) {
         std::cerr << "Chunk::RenderChunk(): vao or EBO is empty" << std::endl;
@@ -158,12 +152,11 @@ Chunk::IsFaceVisible(const glm::vec3& position, const BlockFace face) const
                 break;
         }
 
-        std::lock_guard<std::mutex> lock(chunk_map_mutex_);
-        if (chunk_map_.count(neighbour_chunk_pos) == 0) {
-            return true;
+        if (nullptr == world_->GetChunk(neighbour_chunk_pos)) { //if neighbour chunk does not exist then do not render face
+            return false;
         }
 
-        neighbour_block = BlockFactory::GetBlock(chunk_map_.at(neighbour_chunk_pos)->blocks_[neighbour_block_x][position.y][neighbour_block_z]);
+        neighbour_block = BlockFactory::GetBlock(world_->GetChunk(neighbour_chunk_pos)->blocks_[neighbour_block_x][position.y][neighbour_block_z]);
     }
     else { //get neighbour block from current chunk
         switch (face) {

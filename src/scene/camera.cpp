@@ -20,7 +20,7 @@ Camera::GetViewMatrix()
 glm::mat4
 Camera::GetProjectionMatrix(int width, int height)
 {
-    return glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
+    return glm::perspective(glm::radians(fov_), (float)width / (float)height, near_, far_);
 }
 
 void

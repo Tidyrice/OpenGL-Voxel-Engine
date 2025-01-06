@@ -11,7 +11,7 @@
 #include <block_texture_map.h>
 #include "window.h"
 #include "shader.h"
-#include "chunk.h"
+#include "world.h"
 
 GameScene::GameScene(): Scene{}
 {
@@ -85,8 +85,11 @@ GameScene::UpdatePerFrame()
     std::vector<float> vertices_VAO;
     std::vector<int> texture_layers_VAO;
 
-    static Chunk chunk{{0, 0}};
-    chunk.RenderChunk();
+    glm::vec3 pos = camera_->GetPosition();
+    ChunkPos current_chunk_pos{(int)pos.x / CHUNK_WIDTH, (int)pos.z / CHUNK_WIDTH};
+    static World world{current_chunk_pos};
+    world.UpdateChunkPos(current_chunk_pos);
+    world.RenderWorld();
 }
 
 void
