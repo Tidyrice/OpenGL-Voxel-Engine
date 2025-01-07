@@ -5,13 +5,15 @@
 
 World::World(ChunkPos pos) : current_chunk_pos_{pos}
 {
-    AddVisibleChunksToQueue(); //add chunks within render distance to queue (queue is already empty)
+    AddVisibleChunksToCreationQueue(); //add chunks within render distance to queue (queue is already empty)
 
-    //start chunk generation thread (only using one thread for now)
-    for (int i = 0; i < 1; i++) {
-        std::thread t(&World::GenerateChunkThreaded, this);
-        t.detach();
-    }
+    //start chunk generation thread
+    std::thread chunk_gen_thread(&World::CreateChunkThreaded, this);
+    chunk_gen_thread.detach();
+
+    //start chunk mesh generation thread
+    std::thread chunk_mesh_gen_thread(&World::GenerateChunkMeshThreaded, this);
+    chunk_mesh_gen_thread.detach();
 }
 
 World::~World()
@@ -54,54 +56,50 @@ World::UpdateChunkPos(const ChunkPos& pos)
     current_chunk_pos_ = pos;
     std::cout << "World::UpdateChunkPos(): current_chunk_pos_: " << current_chunk_pos_.x << ", " << current_chunk_pos_.z << std::endl;
 
-    chunk_queue_ = std::queue<ChunkPos>(); //clear queue
-    AddVisibleChunksToQueue();
+    chunk_creation_queue_.Clear();
+    chunk_mesh_queue_.Clear();
+    AddVisibleChunksToCreationQueue();
 }
 
 void
-World::GenerateChunkThreaded()
+World::CreateChunkThreaded()
 {
     while (true) {
-        ChunkPos pos;
-        {
-            std::lock_guard<std::recursive_mutex> lock(chunk_queue_mutex_);
-            if (chunk_queue_.empty()) {
-                continue;
-            }
-            pos = chunk_queue_.front();
-            chunk_queue_.pop();
-        }
+        ChunkPos pos = chunk_creation_queue_.Pop();
 
         std::lock_guard<std::recursive_mutex> lock(chunk_map_mutex_);
-        // if chunk already exists, then do nothing
-        if (chunk_map_.count(pos) == 0) {
-            chunk_map_[pos] = std::make_unique<Chunk>(pos, this);
-            chunk_map_[pos]->GenerateChunkVerticies();
-            RegenerateAdjacentChunkVertices(pos);
+        if (chunk_map_.count(pos) == 0) { //only execute if chunk doesn't exist
+            chunk_map_[pos] = std::make_unique<Chunk>(pos, this); //create chunk
+            RegenerateAdjacentChunkMeshes(pos); //let adjacent chunks know to update their meshes
         }
     }
 }
 
 void
-World::AddToChunkQueue(const ChunkPos& pos)
+World::GenerateChunkMeshThreaded()
 {
-    std::lock_guard<std::recursive_mutex> lock(chunk_queue_mutex_);
-    chunk_queue_.push(pos);
+    while (true) {
+        ChunkPos pos = chunk_mesh_queue_.Pop();
+
+        std::lock_guard<std::recursive_mutex> lock(chunk_map_mutex_);
+        if (chunk_map_.count(pos) != 0) {
+            chunk_map_.at(pos)->GenerateMesh();
+        }
+    }
 }
 
 void
-World::AddVisibleChunksToQueue()
+World::AddVisibleChunksToCreationQueue()
 {
-    std::lock_guard<std::recursive_mutex> lock(chunk_queue_mutex_);
     for (int i = -renderDistance_; i <= renderDistance_; i++) { //add all chunks in render distance to queue (TODO: CHANGE ORDER OF GENERATION TO NEAREST FIRST)
         for (int j = -renderDistance_; j <= renderDistance_; j++) {
-            AddToChunkQueue({current_chunk_pos_.x + i, current_chunk_pos_.z + j});
+            chunk_creation_queue_.Push({current_chunk_pos_.x + i, current_chunk_pos_.z + j});
         }
     }
 }
 
 void
-World::RegenerateAdjacentChunkVertices(const ChunkPos& pos)
+World::RegenerateAdjacentChunkMeshes(const ChunkPos& pos)
 {
     static const std::vector<ChunkPos> adjacent_chunk_positions = {
         {1, 0},
@@ -110,11 +108,8 @@ World::RegenerateAdjacentChunkVertices(const ChunkPos& pos)
         {0, -1}
     };
 
-    std::lock_guard<std::recursive_mutex> lock(chunk_map_mutex_);
     for (auto& adjacent_pos : adjacent_chunk_positions) {
         ChunkPos neighbour_pos = pos + adjacent_pos;
-        if (chunk_map_.count(neighbour_pos) != 0) {
-            chunk_map_[neighbour_pos]->GenerateChunkVerticies();
-        }
+        chunk_mesh_queue_.Push(neighbour_pos);
     }
 }

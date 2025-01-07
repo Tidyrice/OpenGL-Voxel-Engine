@@ -35,11 +35,9 @@ Chunk::~Chunk()
 }
 
 void
-Chunk::GenerateChunkVerticies()
+Chunk::GenerateMesh()
 {
-    if (!is_dirty_) {
-        return;
-    }
+    mesh_generated_ = false; //atomic, no need for lock
 
     vertices_vao_.clear();
     texture_layers_vao_.clear();
@@ -63,20 +61,23 @@ Chunk::GenerateChunkVerticies()
         }
     }
 
-    is_dirty_ = false;
+    mesh_generated_ = true;
 }
 
 void
 Chunk::RenderChunk()
 {
-    GLuint VAO, EBO;
-
-    GenerateChunkVerticies();
+    if (mesh_generated_ == false) {
+        std::cout << "Chunk::RenderChunk(): mesh not yet generated for chunk at " << pos_.x << ", " << pos_.z << std::endl;
+        return;
+    }
 
     if (vertices_vao_.size() == 0 || texture_layers_vao_.size() == 0 || ebo_.size() == 0) {
         std::cerr << "Chunk::RenderChunk(): vao or EBO is empty" << std::endl;
         return;
     }
+
+    GLuint VAO, EBO;
 
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &EBO);

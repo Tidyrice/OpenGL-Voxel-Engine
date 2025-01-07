@@ -6,8 +6,8 @@
 #include <unordered_map>
 #include <mutex>
 #include <memory>
-#include <queue>
 #include "game_config.h"
+#include "ts_queue.h"
 
 class Chunk;
 
@@ -21,16 +21,17 @@ class World {
         void UpdateChunkPos(const ChunkPos& pos);
 
     private:
-        void GenerateChunkThreaded(); //called by additional threads
-        void AddToChunkQueue(const ChunkPos& pos);
-        void AddVisibleChunksToQueue();
-        void RegenerateAdjacentChunkVertices(const ChunkPos& pos);
+        void CreateChunkThreaded();
+        void GenerateChunkMeshThreaded();
+
+        void AddVisibleChunksToCreationQueue();
+        void RegenerateAdjacentChunkMeshes(const ChunkPos& pos);
 
         std::unordered_map<ChunkPos, std::unique_ptr<Chunk>, ChunkPosHash> chunk_map_; //holds all active chunks
         std::recursive_mutex chunk_map_mutex_;
-
-        std::queue<ChunkPos> chunk_queue_; //holds chunks that need to be generated
-        std::recursive_mutex chunk_queue_mutex_;
+        
+        ts_queue<ChunkPos> chunk_creation_queue_; //holds chunks that need to be created
+        ts_queue<ChunkPos> chunk_mesh_queue_; //holds chunks that need to have their mesh generated
 
         ChunkPos current_chunk_pos_; //current chunk the player is in
         int renderDistance_ = RENDER_DISTANCE; //render distance in chunks

@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 #include <unordered_map>
 #include "chunk_pos.h"
+#include <atomic>
 
 class World;
 
@@ -17,7 +18,7 @@ class Chunk {
         ~Chunk();
 
         void RenderChunk();
-        void GenerateChunkVerticies();
+        void GenerateMesh();
 
     private:
         bool IsFaceVisible(const glm::vec3& position, const BlockFace face) const;
@@ -27,7 +28,7 @@ class Chunk {
         std::vector<std::vector<std::vector<BlockEnum::BlockId>>> blocks_; //blocks_[x][y][z]
         ChunkPos pos_;
 
-        bool is_dirty_ = true; //if the chunk has needs rerendering
+        std::atomic<bool> mesh_generated_ = false;
         std::vector<float> vertices_vao_;
         std::vector<int> texture_layers_vao_;
         std::vector<unsigned int> ebo_;

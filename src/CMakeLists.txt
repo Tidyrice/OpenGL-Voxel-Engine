@@ -7,6 +7,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     controller
     scene
     game
+    common
 )
 
 # Add subdirectories
@@ -14,6 +15,7 @@ add_subdirectory(view)
 add_subdirectory(controller)
 add_subdirectory(scene)
 add_subdirectory(game)
+add_subdirectory(cmn)
 
 # Link libraries and dependencies to the main executable
 target_link_libraries(${PROJECT_NAME} PRIVATE

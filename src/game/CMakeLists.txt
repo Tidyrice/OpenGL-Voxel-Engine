@@ -10,6 +10,7 @@ target_link_libraries(game PRIVATE
     view
     scene
     glfw
+    common
     ${OPENGL_LIBRARIES}
 )
 
