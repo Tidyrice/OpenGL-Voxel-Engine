@@ -17,8 +17,7 @@ class World {
         ~World();
 
         void RenderWorld(); //renders the world around the current chunk
-        Chunk* GetChunk(const ChunkPos& pos);
-        void UpdateChunkPos(const ChunkPos& pos);
+        void UpdateChunkPos(const ChunkPos& pos); //specifies new chunk player is in
 
     private:
         void CreateChunkThreaded();
@@ -27,6 +26,8 @@ class World {
         void AddVisibleChunksToCreationQueue();
         void RegenerateAdjacentChunkMeshes(const ChunkPos& pos);
 
+        friend class Chunk; //allows Chunk class to access GetChunk()
+        const Chunk* GetChunk(const ChunkPos& pos); //used by Chunk class
         std::unordered_map<ChunkPos, std::unique_ptr<Chunk>, ChunkPosHash> chunk_map_; //holds all active chunks
         std::recursive_mutex chunk_map_mutex_;
         
@@ -35,6 +36,8 @@ class World {
 
         ChunkPos current_chunk_pos_; //current chunk the player is in
         int renderDistance_ = RENDER_DISTANCE; //render distance in chunks
+
+        bool terminate_threads_ = false;
 };
 
 #endif // WORLD_H

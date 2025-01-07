@@ -18,6 +18,7 @@ World::World(ChunkPos pos) : current_chunk_pos_{pos}
 
 World::~World()
 {
+    terminate_threads_ = true;
 }
 
 void
@@ -37,7 +38,7 @@ World::RenderWorld()
     }
 }
 
-Chunk*
+const Chunk*
 World::GetChunk(const ChunkPos& pos)
 {
     std::lock_guard<std::recursive_mutex> lock(chunk_map_mutex_);
@@ -64,12 +65,13 @@ World::UpdateChunkPos(const ChunkPos& pos)
 void
 World::CreateChunkThreaded()
 {
-    while (true) {
+    while (!terminate_threads_) {
         ChunkPos pos = chunk_creation_queue_.Pop();
 
         std::lock_guard<std::recursive_mutex> lock(chunk_map_mutex_);
         if (chunk_map_.count(pos) == 0) { //only execute if chunk doesn't exist
             chunk_map_[pos] = std::make_unique<Chunk>(pos, this); //create chunk
+            chunk_mesh_queue_.Push(pos); //generate mesh for chunk
             RegenerateAdjacentChunkMeshes(pos); //let adjacent chunks know to update their meshes
         }
     }
@@ -78,7 +80,7 @@ World::CreateChunkThreaded()
 void
 World::GenerateChunkMeshThreaded()
 {
-    while (true) {
+    while (!terminate_threads_) {
         ChunkPos pos = chunk_mesh_queue_.Pop();
 
         std::lock_guard<std::recursive_mutex> lock(chunk_map_mutex_);

@@ -20,7 +20,7 @@ class ts_queue {
             cond_.notify_one();
         }
 
-        T Pop() {
+        T Pop() { //waits (non-blocking) until queue is not empty, then pops and returns item
             std::unique_lock<std::mutex> lock(mutex_);
 
             cond_.wait(lock, [this] { return !queue_.empty(); }); //wait until queue is not empty
