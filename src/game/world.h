@@ -2,12 +2,13 @@
 #define WORLD_H
 
 #include "chunk_pos.h"
-#include "chunk_pos_hash.h"
 #include <unordered_map>
 #include <mutex>
 #include <memory>
 #include "game_config.h"
 #include "ts_queue.h"
+#include "ts_set_queue.h"
+#include "chunk_pos_hash.h"
 
 class Chunk;
 
@@ -22,8 +23,10 @@ class World {
     private:
         void CreateChunkThreaded();
         void GenerateChunkMeshThreaded();
+        void DeleteChunkThreaded();
 
         void AddVisibleChunksToCreationQueue();
+        void AddInvisibleChunksToDeletionQueue();
         void RegenerateAdjacentChunkMeshes(const ChunkPos& pos);
 
         friend class Chunk; //allows Chunk class to access GetChunk()
@@ -32,7 +35,8 @@ class World {
         std::recursive_mutex chunk_map_mutex_;
         
         ts_queue<ChunkPos> chunk_creation_queue_; //holds chunks that need to be created
-        ts_queue<ChunkPos> chunk_mesh_queue_; //holds chunks that need to have their mesh generated
+        ts_set_queue<ChunkPos, ChunkPosHash> chunk_mesh_queue_; //holds chunks that need to have their mesh generated
+        ts_queue<ChunkPos> chunk_deletion_queue_; //holds chunks that need to be deleted
 
         ChunkPos current_chunk_pos_; //current chunk the player is in
         int renderDistance_ = RENDER_DISTANCE; //render distance in chunks

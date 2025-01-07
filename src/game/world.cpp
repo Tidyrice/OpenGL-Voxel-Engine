@@ -14,6 +14,10 @@ World::World(ChunkPos pos) : current_chunk_pos_{pos}
     //start chunk mesh generation thread
     std::thread chunk_mesh_gen_thread(&World::GenerateChunkMeshThreaded, this);
     chunk_mesh_gen_thread.detach();
+
+    //start chunk deletion thread
+    std::thread chunk_deletion_thread(&World::DeleteChunkThreaded, this);
+    chunk_deletion_thread.detach();
 }
 
 World::~World()
@@ -29,12 +33,7 @@ World::RenderWorld()
 
     //render already generated chunks
     for (auto& [pos, chunk] : chunk_map_) { //iterate through chunk map
-        if (abs(pos.x - current_chunk_pos_.x) > renderDistance_ || abs(pos.z - current_chunk_pos_.z) > renderDistance_) { //if chunk is outside render distance call dtor
-            chunk_map_.erase(pos);
-        }
-        else {
-            chunk->RenderChunk();
-        }
+        chunk->RenderChunk();
     }
 }
 
@@ -59,7 +58,10 @@ World::UpdateChunkPos(const ChunkPos& pos)
 
     chunk_creation_queue_.Clear();
     chunk_mesh_queue_.Clear();
+    chunk_deletion_queue_.Clear();
+
     AddVisibleChunksToCreationQueue();
+    AddInvisibleChunksToDeletionQueue();
 }
 
 void
@@ -91,11 +93,36 @@ World::GenerateChunkMeshThreaded()
 }
 
 void
+World::DeleteChunkThreaded()
+{
+    while (!terminate_threads_) {
+        ChunkPos pos = chunk_deletion_queue_.Pop();
+
+        std::lock_guard<std::recursive_mutex> lock(chunk_map_mutex_);
+        if (chunk_map_.count(pos) != 0) {
+            chunk_map_.erase(pos);
+        }
+    }
+}
+
+void
 World::AddVisibleChunksToCreationQueue()
 {
     for (int i = -renderDistance_; i <= renderDistance_; i++) { //add all chunks in render distance to queue (TODO: CHANGE ORDER OF GENERATION TO NEAREST FIRST)
         for (int j = -renderDistance_; j <= renderDistance_; j++) {
             chunk_creation_queue_.Push({current_chunk_pos_.x + i, current_chunk_pos_.z + j});
+        }
+    }
+}
+
+void
+World::AddInvisibleChunksToDeletionQueue()
+{
+    std::lock_guard<std::recursive_mutex> lock(chunk_map_mutex_);
+
+    for (auto& [pos, chunk] : chunk_map_) { //iterate through chunk map
+        if (abs(pos.x - current_chunk_pos_.x) > renderDistance_ || abs(pos.z - current_chunk_pos_.z) > renderDistance_) { //if chunk is outside render distance call dtor
+            chunk_deletion_queue_.Push(pos);
         }
     }
 }
