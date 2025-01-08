@@ -20,7 +20,7 @@ One of the coolest things about computer graphics in my opinion are the matrices
 
 * Clone the repository
 ```bash
-git clone https://github.com/Tidyrice/OpenGL-Voxel-Engine.git
+git clone --recursive https://github.com/Tidyrice/OpenGL-Voxel-Engine.git
 ```
 
 * Build the project (on Linux or Git Bash)
