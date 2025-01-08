@@ -13,10 +13,31 @@ Controller::GetActiveController(Controller* instance)
 }
 
 void
-Controller::ProcessKeysCallback(GLFWwindow* glfw_window, int key, int scancode, int action, int mods)
+Controller::UpdateKeyEvents(GLFWwindow* glfw_window)
 {
-    if (GetActiveController()) {
-        GetActiveController()->HandleKeys(key, action);
+    //checking like this instead of using interrupts for continuous movement
+
+    if (glfwGetKey(glfw_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+        scene_->HandleNormalKeys(GLFW_KEY_ESCAPE, GLFW_PRESS);
+    }
+
+    if (glfwGetKey(glfw_window, GLFW_KEY_W) == GLFW_PRESS) {
+        scene_->HandleNormalKeys(GLFW_KEY_W, GLFW_PRESS);
+    }
+    if (glfwGetKey(glfw_window, GLFW_KEY_A) == GLFW_PRESS) {
+        scene_->HandleNormalKeys(GLFW_KEY_A, GLFW_PRESS);
+    }
+    if (glfwGetKey(glfw_window, GLFW_KEY_S) == GLFW_PRESS) {
+        scene_->HandleNormalKeys(GLFW_KEY_S, GLFW_PRESS);
+    }
+    if (glfwGetKey(glfw_window, GLFW_KEY_D) == GLFW_PRESS) {
+        scene_->HandleNormalKeys(GLFW_KEY_D, GLFW_PRESS);
+    }
+    if (glfwGetKey(glfw_window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+        scene_->HandleNormalKeys(GLFW_KEY_SPACE, GLFW_PRESS);
+    }
+    if (glfwGetKey(glfw_window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+        scene_->HandleNormalKeys(GLFW_KEY_LEFT_SHIFT, GLFW_PRESS);
     }
 }
 
@@ -30,12 +51,6 @@ Controller::ProcessMouseMovementCallback(GLFWwindow* glfw_window, double x, doub
 
 
 // ---- PRIVATE METHODS ---- //
-
-void
-Controller::HandleKeys(int key, int action)
-{
-    scene_->HandleNormalKeys(key, action);
-}
 
 void
 Controller::HandleMouseMovement(double x, double y)

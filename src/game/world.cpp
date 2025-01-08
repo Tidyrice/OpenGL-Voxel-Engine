@@ -12,9 +12,11 @@ World::World(ChunkPos pos) : current_chunk_pos_{pos}
 {
     AddVisibleChunksToCreationQueue(); //add chunks within render distance to queue (queue is already empty)
 
-    //start chunk creation thread
-    std::thread chunk_creation_thread(&World::ProcessChunkCreationQueueThreaded, this);
-    chunk_creation_thread.detach();
+    //start chunk creation thread (2)
+    for (int i = 0; i < 2; i++) {
+        std::thread chunk_creation_thread(&World::ProcessChunkCreationQueueThreaded, this);
+        chunk_creation_thread.detach();
+    }
 
     //start chunk mesh generation thread
     std::thread chunk_mesh_gen_thread(&World::ProcessChunkMeshQueueThreaded, this);

@@ -18,6 +18,7 @@ class Camera {
         void MoveRight();
         void MoveUp();
         void MoveDown();
+        void MakeMove(); //updates camera position based on key presses (called after key events are processed)
         void HandleMouseMovement(double x, double y);
 
     private:
@@ -38,6 +39,9 @@ class Camera {
         
         float yaw_; // yaw zero points to the right
         float pitch_;
+
+        glm::vec3 move_direction_horizontal_ = glm::vec3(0.0f);
+        glm::vec3 move_direction_vertical_ = glm::vec3(0.0f);
 
         bool first_mouse_movement_ = true;
         double last_x_; // previous x position for the mouse

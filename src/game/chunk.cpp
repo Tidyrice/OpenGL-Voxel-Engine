@@ -21,11 +21,11 @@ Chunk::Chunk(ChunkPos pos, World* world) : pos_{pos}, world_{world}
         row.resize(CHUNK_HEIGHT);
         for (auto& column : row) {
             column.resize(CHUNK_WIDTH, block_id);
-            // for (int i = 0; i < column.size(); i++) {
-            //     if (i%5 == 0) {
-            //         column[i] = BlockEnum::BlockId::AIR;
-            //     }
-            // }
+            for (int i = 0; i < column.size(); i++) {
+                if (i%2 == 0) {
+                    column[i] = BlockEnum::BlockId::STONE_BLOCK;
+                }
+            }
         }
     }
 }

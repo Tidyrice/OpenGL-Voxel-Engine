@@ -56,9 +56,6 @@ Window::RegisterWindowCallbacks()
     //resize callback
     glfwSetFramebufferSizeCallback(glfw_window_ptr_, WindowResizeCallback);
 
-    //handle keyboard input
-    glfwSetKeyCallback(glfw_window_ptr_, Controller::ProcessKeysCallback);
-
     //handle mouse input
     glfwSetInputMode(glfw_window_ptr_, GLFW_CURSOR, GLFW_CURSOR_DISABLED); //hide and capture cursor
     glfwSetCursorPosCallback(glfw_window_ptr_, Controller::ProcessMouseMovementCallback);
@@ -81,6 +78,9 @@ void
 Window::RenderScene()
 {
     glfwPollEvents();
+
+    //handle keyboard input
+    Controller::GetActiveController()->UpdateKeyEvents(glfw_window_ptr_);
 
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

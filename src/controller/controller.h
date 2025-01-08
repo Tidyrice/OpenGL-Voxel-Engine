@@ -14,11 +14,10 @@ class Controller {
         Controller(Scene* s): scene_{s} {};
         ~Controller() = default;
 
-        static void ProcessKeysCallback(GLFWwindow* glfw_window, int key, int scancode, int action, int mods);
+        void UpdateKeyEvents(GLFWwindow* glfw_window);
         static void ProcessMouseMovementCallback(GLFWwindow* glfw_window, double x, double y);
 
     private:
-        void HandleKeys(int key, int action) ;
         void HandleMouseMovement(double x, double y);
 
         Scene* scene_;

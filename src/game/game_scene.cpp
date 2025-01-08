@@ -85,8 +85,13 @@ GameScene::UpdatePerFrame()
     std::vector<float> vertices_VAO;
     std::vector<int> texture_layers_VAO;
 
+    camera_->MakeMove(); //update camera position based on key presses
+
+    //calculate which chunk camera is in
     glm::vec3 pos = camera_->GetPosition();
     ChunkPos current_chunk_pos{(int)pos.x / CHUNK_WIDTH, (int)pos.z / CHUNK_WIDTH};
+
+    //render world based on current chunk
     static World world{current_chunk_pos};
     world.UpdateChunkPos(current_chunk_pos);
     world.RenderWorld();

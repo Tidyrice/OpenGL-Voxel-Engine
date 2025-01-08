@@ -8,7 +8,7 @@
 Camera::Camera(float speed, float sensitity, glm::vec3 position, float yaw, float pitch)
     : speed_{speed}, sensitivity_{sensitity}, camera_pos_{position}, yaw_{yaw}, pitch_{pitch}
 {
-    
+    UpdateCameraVectors();
 }
 
 glm::mat4
@@ -26,42 +26,60 @@ Camera::GetProjectionMatrix(int width, int height)
 void
 Camera::MoveForward()
 {
-    camera_pos_ += GetNormalizedCameraSpeed() * glm::normalize(glm::vec3(camera_front_.x, 0.0f, camera_front_.z));
-    UpdateCameraVectors();
+    move_direction_horizontal_ += glm::normalize(glm::vec3(camera_front_.x, 0.0f, camera_front_.z));
 }
 
 void
 Camera::MoveBackward()
 {
-    camera_pos_ -= GetNormalizedCameraSpeed() * glm::normalize(glm::vec3(camera_front_.x, 0.0f, camera_front_.z));
-    UpdateCameraVectors();
+    move_direction_horizontal_ -= glm::normalize(glm::vec3(camera_front_.x, 0.0f, camera_front_.z));
 }
 
 void
 Camera::MoveLeft()
 {
-    camera_pos_ -= glm::normalize(glm::cross(camera_front_, camera_up_)) * GetNormalizedCameraSpeed();
-    UpdateCameraVectors();
+    move_direction_horizontal_ -= glm::normalize(glm::cross(camera_front_, camera_up_));
 }
 
 void
 Camera::MoveRight()
 {
-    camera_pos_ += glm::normalize(glm::cross(camera_front_, camera_up_)) * GetNormalizedCameraSpeed();
-    UpdateCameraVectors();
+    move_direction_horizontal_ += glm::normalize(glm::cross(camera_front_, camera_up_));
 }
 
 void
 Camera::MoveUp()
 {
-    camera_pos_ += GetNormalizedCameraSpeed() * camera_up_;
-    UpdateCameraVectors();
+    move_direction_vertical_ += glm::normalize(camera_up_);
 }
 
 void
 Camera::MoveDown()
 {
-    camera_pos_ -= GetNormalizedCameraSpeed() * camera_up_;
+    move_direction_vertical_ -= glm::normalize(camera_up_);
+}
+
+void
+Camera::MakeMove()
+{
+    //need to check if we moved, otherwise glm::normalize has weird behaviour with zero vectors
+    static const float epsilon = 0.0001f;
+    if (glm::length(move_direction_horizontal_) > epsilon) {
+        camera_pos_ += glm::normalize(move_direction_horizontal_) * GetNormalizedCameraSpeed();
+    }
+    if (glm::length(move_direction_vertical_) > epsilon) {
+        camera_pos_ += glm::normalize(move_direction_vertical_) * GetNormalizedCameraSpeed();
+    }
+
+    //check for NAN
+    if (glm::any(glm::isnan(camera_pos_))) {
+        std::cerr << "Camera::MakeMove(): camera_pos_ is nan" << std::endl;
+        exit(-1);
+    }
+
+    move_direction_horizontal_ = glm::vec3(0.0f);
+    move_direction_vertical_ = glm::vec3(0.0f);
+
     UpdateCameraVectors();
 }
 
