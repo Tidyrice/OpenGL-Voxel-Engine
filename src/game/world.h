@@ -24,20 +24,20 @@ class World {
         void UpdateChunkPos(const ChunkPos& pos); //specifies new chunk player is in
 
     private:
-        void CreateChunkThreaded();
-        void GenerateChunkMeshThreaded();
-        void DeleteChunkThreaded();
+        void ProcessChunkCreationQueueThreaded();
+        void ProcessChunkMeshQueueThreaded();
+        void ProcessChunkDeletionQueue(); //non-blocking: MUST be called from main thread (Chunk::~Chunk() calls OpenGL methods)
 
         void AddVisibleChunksToCreationQueue();
         void AddInvisibleChunksToDeletionQueue();
         void RegenerateAdjacentChunkMeshes(const ChunkPos& pos);
 
-        std::unordered_map<ChunkPos, std::unique_ptr<Chunk>, ChunkPosHash> chunk_map_; //holds all active chunks
-        std::shared_mutex chunk_map_mutex_;
-        
         ts_queue<ChunkPos> chunk_creation_queue_; //holds chunks that need to be created
         ts_set_queue<ChunkPos, ChunkPosHash> chunk_mesh_queue_; //holds chunks that need to have their mesh generated
         ts_queue<ChunkPos> chunk_deletion_queue_; //holds chunks that need to be deleted
+        
+        std::unordered_map<ChunkPos, std::unique_ptr<Chunk>, ChunkPosHash> chunk_map_; //holds all active chunks
+        std::shared_mutex chunk_map_mutex_;
 
         ChunkPos current_chunk_pos_; //current chunk the player is in
         int renderDistance_ = RENDER_DISTANCE; //render distance in chunks

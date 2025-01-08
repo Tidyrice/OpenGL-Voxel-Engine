@@ -32,13 +32,14 @@ Chunk::Chunk(ChunkPos pos, World* world) : pos_{pos}, world_{world}
 
 Chunk::~Chunk()
 {
-
+    DeleteBuffers();
 }
 
 void
 Chunk::GenerateMesh(std::unordered_map<ChunkPos, Chunk*, ChunkPosHash>& adjacent_chunk_map)
 {
     std::lock_guard<std::mutex> lock(mesh_mutex_);
+    std::cout << "Chunk::GenerateMesh(): Generating mesh for chunk at (" << pos_.x << ", " << pos_.z << ")" << std::endl;
 
     vertices_vao_.clear();
     texture_layers_vao_.clear();
@@ -68,47 +69,18 @@ Chunk::RenderChunk()
 {
     //try to lock the mutex. If mutex is locked, skip rendering (mesh is being regenerated)
     if (!mesh_mutex_.try_lock()) {
-        std::cout << "Chunk::RenderChunk(): mesh_mutex_ is locked. Skipping render for chunk at (" << pos_.x << ", " << pos_.z << ")" << std::endl;
+        // std::cout << "Chunk::RenderChunk(): mesh_mutex_ is locked. Skipping render for chunk at (" << pos_.x << ", " << pos_.z << ")" << std::endl;
         return;
     }
 
     if (vertices_vao_.size() == 0 || texture_layers_vao_.size() == 0 || ebo_.size() == 0) {
-        std::cout << "Chunk::RenderChunk(): VAO or EBO empty. Skipping render for chunk at (" << pos_.x << ", " << pos_.z << ")" << std::endl;
+        // std::cout << "Chunk::RenderChunk(): VAO or EBO empty. Skipping render for chunk at (" << pos_.x << ", " << pos_.z << ")" << std::endl;
         mesh_mutex_.unlock();
         return;
     }
 
-    GLuint VAO, EBO;
-
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &EBO);
-
-    glBindVertexArray(VAO);
-
-    // EBO
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int)*ebo_.size(), &ebo_[0], GL_STATIC_DRAW);
-
-    // POSITION + TEXURE COORDINATES VBO
-    GLuint pos_tex_VBO;
-    glGenBuffers(1, &pos_tex_VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, pos_tex_VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*vertices_vao_.size(), &vertices_vao_[0], GL_STATIC_DRAW); //set pointer to data
-    
-    glVertexAttribPointer(VERTEX_POS_LOCATION, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0); // vertex position
-    glEnableVertexAttribArray(VERTEX_POS_LOCATION);
-    
-    glVertexAttribPointer(TEX_COORD_LOCATION, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float))); // texture coordinates
-    glEnableVertexAttribArray(TEX_COORD_LOCATION);
-
-    // TEXTURE LAYER VBO
-    GLuint layer_VBO;
-    glGenBuffers(1, &layer_VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, layer_VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(int)*texture_layers_vao_.size(), &texture_layers_vao_[0], GL_STATIC_DRAW); //set pointer to data
-
-    glVertexAttribIPointer(TEX_LAYER_LOCATION, 1, GL_INT, 1 * sizeof(int), (void*)0); // texture layer
-    glEnableVertexAttribArray(TEX_LAYER_LOCATION);
+    //send buffer data to GPU
+    InitializeBuffers();
 
     //send model matrix to shader
     Window::GetActiveWindow()->GetShader().SetMat4("model", GetModelMatrix());
@@ -118,6 +90,55 @@ Chunk::RenderChunk()
 
     //unlock mutex
     mesh_mutex_.unlock();
+}
+
+void
+Chunk::InitializeBuffers()
+{
+    if (!buffers_initialized_) {
+        glGenVertexArrays(1, &VAO_);
+        glGenBuffers(1, &pos_tex_VBO_);
+        glGenBuffers(1, &tex_layers_VBO_);
+        glGenBuffers(1, &EBO_);
+        buffers_initialized_ = true;
+    }
+
+    glBindVertexArray(VAO_);
+
+    // EBO
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int)*ebo_.size(), &ebo_[0], GL_STATIC_DRAW);
+
+    // POSITION + TEXURE COORDINATES VBO
+    glBindBuffer(GL_ARRAY_BUFFER, pos_tex_VBO_);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*vertices_vao_.size(), &vertices_vao_[0], GL_STATIC_DRAW); //set pointer to data
+    
+    glVertexAttribPointer(VERTEX_POS_LOCATION, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0); // vertex position
+    glEnableVertexAttribArray(VERTEX_POS_LOCATION);
+    
+    glVertexAttribPointer(TEX_COORD_LOCATION, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float))); // texture coordinates
+    glEnableVertexAttribArray(TEX_COORD_LOCATION);
+
+    // TEXTURE LAYER VBO
+    glBindBuffer(GL_ARRAY_BUFFER, tex_layers_VBO_);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(int)*texture_layers_vao_.size(), &texture_layers_vao_[0], GL_STATIC_DRAW); //set pointer to data
+
+    glVertexAttribIPointer(TEX_LAYER_LOCATION, 1, GL_INT, 1 * sizeof(int), (void*)0); // texture layer
+    glEnableVertexAttribArray(TEX_LAYER_LOCATION);
+}
+
+void
+Chunk::DeleteBuffers()
+{
+    if (!buffers_initialized_) {
+        return;
+    }
+    glDeleteVertexArrays(1, &VAO_);
+    glDeleteBuffers(1, &pos_tex_VBO_);
+    glDeleteBuffers(1, &tex_layers_VBO_);
+    glDeleteBuffers(1, &EBO_);
+    VAO_ = pos_tex_VBO_ = tex_layers_VBO_ = EBO_ = 0;
+    buffers_initialized_ = false;
 }
 
 bool

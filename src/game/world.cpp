@@ -12,17 +12,13 @@ World::World(ChunkPos pos) : current_chunk_pos_{pos}
 {
     AddVisibleChunksToCreationQueue(); //add chunks within render distance to queue (queue is already empty)
 
-    //start chunk generation thread
-    std::thread chunk_gen_thread(&World::CreateChunkThreaded, this);
-    chunk_gen_thread.detach();
+    //start chunk creation thread
+    std::thread chunk_creation_thread(&World::ProcessChunkCreationQueueThreaded, this);
+    chunk_creation_thread.detach();
 
     //start chunk mesh generation thread
-    std::thread chunk_mesh_gen_thread(&World::GenerateChunkMeshThreaded, this);
+    std::thread chunk_mesh_gen_thread(&World::ProcessChunkMeshQueueThreaded, this);
     chunk_mesh_gen_thread.detach();
-
-    //start chunk deletion thread
-    std::thread chunk_deletion_thread(&World::DeleteChunkThreaded, this);
-    chunk_deletion_thread.detach();
 }
 
 World::~World()
@@ -33,14 +29,21 @@ World::~World()
 void
 World::RenderWorld()
 {
-    // std::cout << "World::RenderWorld()" << std::endl;
-    std::shared_lock<std::shared_mutex> lock(chunk_map_mutex_);
-    // std::cout << "World::RenderWorld(): acquired S lock" << std::endl;
+    {
+        // std::cout << "World::RenderWorld()" << std::endl;
+        std::shared_lock<std::shared_mutex> lock(chunk_map_mutex_);
+        // std::cout << "World::RenderWorld(): acquired S lock" << std::endl;
 
-    //render already generated chunks
-    for (auto& [pos, chunk] : chunk_map_) { //iterate through chunk map
-        chunk->RenderChunk();
+        //render already generated chunks
+        for (auto& [pos, chunk] : chunk_map_) { //iterate through chunk map
+            chunk->RenderChunk();
+        }
+
+        //release shared lock
     }
+
+    //this function acquires unique lock
+    ProcessChunkDeletionQueue(); //delete chunks that are outside render distance
 }
 
 void
@@ -51,7 +54,7 @@ World::UpdateChunkPos(const ChunkPos& pos)
         return;
     }
     current_chunk_pos_ = pos;
-    // std::cout << "World::UpdateChunkPos(): current_chunk_pos_: " << current_chunk_pos_.x << ", " << current_chunk_pos_.z << std::endl;
+    std::cout << "World::UpdateChunkPos(): new current_chunk_pos_: " << current_chunk_pos_.x << ", " << current_chunk_pos_.z << std::endl;
 
     chunk_creation_queue_.Clear();
     chunk_mesh_queue_.Clear();
@@ -62,7 +65,7 @@ World::UpdateChunkPos(const ChunkPos& pos)
 }
 
 void
-World::CreateChunkThreaded()
+World::ProcessChunkCreationQueueThreaded()
 {
     while (!terminate_threads_) {
         ChunkPos pos = chunk_creation_queue_.Pop();
@@ -80,7 +83,7 @@ World::CreateChunkThreaded()
 }
 
 void
-World::GenerateChunkMeshThreaded()
+World::ProcessChunkMeshQueueThreaded()
 {
     while (!terminate_threads_) {
         ChunkPos pos = chunk_mesh_queue_.Pop();
@@ -109,17 +112,17 @@ World::GenerateChunkMeshThreaded()
 }
 
 void
-World::DeleteChunkThreaded()
+World::ProcessChunkDeletionQueue() //NOTE: called from main thread
 {
-    while (!terminate_threads_) {
-        ChunkPos pos = chunk_deletion_queue_.Pop();
+    if (!chunk_deletion_queue_.Empty()) {
+        if (chunk_map_mutex_.try_lock()) { //return if mutex is locked to ensure RenderWorld is not blocked
 
-        // std::cout << "World::DeleteChunkThreaded()" << std::endl;
-        std::unique_lock<std::shared_mutex> lock(chunk_map_mutex_);
-        // std::cout << "World::DeleteChunkThreaded(): acquired X lock" << std::endl;
+            ChunkPos pos = chunk_deletion_queue_.Pop();
+            if (chunk_map_.count(pos) != 0) {
+                chunk_map_.erase(pos);
+            }
 
-        if (chunk_map_.count(pos) != 0) {
-            chunk_map_.erase(pos);
+            chunk_map_mutex_.unlock();
         }
     }
 }

@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include "chunk_pos.h"
 #include <mutex>
+#include <GLFW/glfw3.h>
 
 class World;
 struct ChunkPosHash;
@@ -30,6 +31,12 @@ class Chunk {
 
         std::vector<std::vector<std::vector<BlockEnum::BlockId>>> blocks_; //blocks_[x][y][z]
         ChunkPos pos_;
+
+        //these methods must only be called from the MAIN THREAD since OpenGL is not thread safe
+        void InitializeBuffers();
+        void DeleteBuffers();
+        bool buffers_initialized_ = false;
+        GLuint VAO_, pos_tex_VBO_, tex_layers_VBO_, EBO_;
 
         std::mutex mesh_mutex_; //mutex to ensure thread safety when generating or rendering mesh
         std::vector<float> vertices_vao_;
