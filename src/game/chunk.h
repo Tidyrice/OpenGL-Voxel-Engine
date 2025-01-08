@@ -6,9 +6,10 @@
 #include <glm/glm.hpp>
 #include <unordered_map>
 #include "chunk_pos.h"
-#include <atomic>
+#include <mutex>
 
 class World;
+struct ChunkPosHash;
 
 class Chunk {
     public:
@@ -18,17 +19,19 @@ class Chunk {
         ~Chunk();
 
         void RenderChunk();
-        void GenerateMesh();
+        void GenerateMesh(std::unordered_map<ChunkPos, Chunk*, ChunkPosHash>& adjacent_chunk_map);
 
     private:
-        bool IsFaceVisible(const glm::vec3& position, const BlockFace face) const;
+        bool IsFaceVisible(const glm::vec3&                                     position,
+                           const BlockFace                                      face,
+                           std::unordered_map<ChunkPos, Chunk*, ChunkPosHash>&  adjacent_chunk_map) const;
         bool IsFaceOnChunkBorder(const glm::vec3& position, const BlockFace face) const;
         glm::mat4 GetModelMatrix() const;
 
         std::vector<std::vector<std::vector<BlockEnum::BlockId>>> blocks_; //blocks_[x][y][z]
         ChunkPos pos_;
 
-        std::atomic<bool> mesh_generated_ = false;
+        std::mutex mesh_mutex_; //mutex to ensure thread safety when generating or rendering mesh
         std::vector<float> vertices_vao_;
         std::vector<int> texture_layers_vao_;
         std::vector<unsigned int> ebo_;

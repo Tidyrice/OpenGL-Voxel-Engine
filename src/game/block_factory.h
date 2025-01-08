@@ -13,7 +13,7 @@ class BlockFactory {
         BlockFactory() = delete;
         ~BlockFactory() = delete;
 
-        static Block* GetBlock(BlockId id);
+        static const Block* GetBlock(BlockId id);
 
     private:
         static std::unique_ptr<Block> CreateBlock(BlockId id);

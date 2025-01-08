@@ -9,8 +9,11 @@
 #include "ts_queue.h"
 #include "ts_set_queue.h"
 #include "chunk_pos_hash.h"
+#include <shared_mutex>
+#include <glm/glm.hpp>
 
 class Chunk;
+class Block;
 
 class World {
     public:
@@ -29,10 +32,8 @@ class World {
         void AddInvisibleChunksToDeletionQueue();
         void RegenerateAdjacentChunkMeshes(const ChunkPos& pos);
 
-        friend class Chunk; //allows Chunk class to access GetChunk()
-        const Chunk* GetChunk(const ChunkPos& pos); //used by Chunk class
         std::unordered_map<ChunkPos, std::unique_ptr<Chunk>, ChunkPosHash> chunk_map_; //holds all active chunks
-        std::recursive_mutex chunk_map_mutex_;
+        std::shared_mutex chunk_map_mutex_;
         
         ts_queue<ChunkPos> chunk_creation_queue_; //holds chunks that need to be created
         ts_set_queue<ChunkPos, ChunkPosHash> chunk_mesh_queue_; //holds chunks that need to have their mesh generated
@@ -42,6 +43,8 @@ class World {
         int renderDistance_ = RENDER_DISTANCE; //render distance in chunks
 
         bool terminate_threads_ = false;
+
+        static const std::vector<ChunkPos> adjacent_chunk_positions_;
 };
 
 #endif // WORLD_H

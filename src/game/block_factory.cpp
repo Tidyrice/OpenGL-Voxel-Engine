@@ -7,7 +7,7 @@
 //NOTE: may need mutex for thread safety
 std::unordered_map<BlockId, std::unique_ptr<Block>> BlockFactory::block_map_;
 
-Block*
+const Block*
 BlockFactory::GetBlock(BlockId id)
 {
     if (block_map_.count(id) == 0) {

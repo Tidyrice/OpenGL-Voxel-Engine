@@ -2,6 +2,11 @@
 #include "chunk.h"
 #include "thread"
 #include <iostream>
+#include "block.h"
+
+const std::vector<ChunkPos> World::adjacent_chunk_positions_ = {
+    {1, 0}, {-1, 0}, {0, 1}, {0, -1}
+};
 
 World::World(ChunkPos pos) : current_chunk_pos_{pos}
 {
@@ -28,8 +33,9 @@ World::~World()
 void
 World::RenderWorld()
 {
-    //TODO: have to get rid of this lock somehow. Maybe have a separate thread that renders the world. Causing lagspikes when moving chunks
-    std::lock_guard<std::recursive_mutex> lock(chunk_map_mutex_);
+    // std::cout << "World::RenderWorld()" << std::endl;
+    std::shared_lock<std::shared_mutex> lock(chunk_map_mutex_);
+    // std::cout << "World::RenderWorld(): acquired S lock" << std::endl;
 
     //render already generated chunks
     for (auto& [pos, chunk] : chunk_map_) { //iterate through chunk map
@@ -37,24 +43,15 @@ World::RenderWorld()
     }
 }
 
-const Chunk*
-World::GetChunk(const ChunkPos& pos)
-{
-    std::lock_guard<std::recursive_mutex> lock(chunk_map_mutex_);
-    if (chunk_map_.count(pos) == 0) {
-        return nullptr;
-    }
-    return chunk_map_.at(pos).get();
-}
-
 void
 World::UpdateChunkPos(const ChunkPos& pos)
 {
+    // std::cout << "World::UpdateChunkPos()" << std::endl;
     if (current_chunk_pos_ == pos) {
         return;
     }
     current_chunk_pos_ = pos;
-    std::cout << "World::UpdateChunkPos(): current_chunk_pos_: " << current_chunk_pos_.x << ", " << current_chunk_pos_.z << std::endl;
+    // std::cout << "World::UpdateChunkPos(): current_chunk_pos_: " << current_chunk_pos_.x << ", " << current_chunk_pos_.z << std::endl;
 
     chunk_creation_queue_.Clear();
     chunk_mesh_queue_.Clear();
@@ -70,7 +67,10 @@ World::CreateChunkThreaded()
     while (!terminate_threads_) {
         ChunkPos pos = chunk_creation_queue_.Pop();
 
-        std::lock_guard<std::recursive_mutex> lock(chunk_map_mutex_);
+        // std::cout << "World::CreateChunkThreaded()" << std::endl;
+        std::unique_lock<std::shared_mutex> lock(chunk_map_mutex_);
+        // std::cout << "World::CreateChunkThreaded(): acquired X lock" << std::endl;
+
         if (chunk_map_.count(pos) == 0) { //only execute if chunk doesn't exist
             chunk_map_[pos] = std::make_unique<Chunk>(pos, this); //create chunk
             chunk_mesh_queue_.Push(pos); //generate mesh for chunk
@@ -85,10 +85,26 @@ World::GenerateChunkMeshThreaded()
     while (!terminate_threads_) {
         ChunkPos pos = chunk_mesh_queue_.Pop();
 
-        std::lock_guard<std::recursive_mutex> lock(chunk_map_mutex_);
+        // std::cout << "World::GenerateChunkMeshThreaded()" << std::endl;
+
+        //using shared lock so RenderWorld can render while mesh is being generated
+        //Chunk has its own mutex to synchrnize rendering and mesh generation
+        std::shared_lock<std::shared_mutex> lock(chunk_map_mutex_);
+
+        // std::cout << "World::GenerateChunkMeshThreaded(): acquired S lock" << std::endl;
+
         if (chunk_map_.count(pos) != 0) {
-            chunk_map_.at(pos)->GenerateMesh();
+            std::unordered_map<ChunkPos, Chunk*, ChunkPosHash> adjacent_chunk_map;
+            for (auto& adjacent_pos : adjacent_chunk_positions_) {
+                ChunkPos neighbour_pos = pos + adjacent_pos;
+                if (chunk_map_.count(neighbour_pos) != 0) {
+                    adjacent_chunk_map[neighbour_pos] = chunk_map_.at(neighbour_pos).get();
+                }
+            }
+            chunk_map_.at(pos)->GenerateMesh(adjacent_chunk_map);
         }
+
+        //lock is held until GenerateMesh completes
     }
 }
 
@@ -98,7 +114,10 @@ World::DeleteChunkThreaded()
     while (!terminate_threads_) {
         ChunkPos pos = chunk_deletion_queue_.Pop();
 
-        std::lock_guard<std::recursive_mutex> lock(chunk_map_mutex_);
+        // std::cout << "World::DeleteChunkThreaded()" << std::endl;
+        std::unique_lock<std::shared_mutex> lock(chunk_map_mutex_);
+        // std::cout << "World::DeleteChunkThreaded(): acquired X lock" << std::endl;
+
         if (chunk_map_.count(pos) != 0) {
             chunk_map_.erase(pos);
         }
@@ -118,7 +137,8 @@ World::AddVisibleChunksToCreationQueue()
 void
 World::AddInvisibleChunksToDeletionQueue()
 {
-    std::lock_guard<std::recursive_mutex> lock(chunk_map_mutex_);
+    // std::cout << "World::AddInvisibleChunksToDeletionQueue()" << std::endl;
+    std::shared_lock<std::shared_mutex> lock(chunk_map_mutex_);
 
     for (auto& [pos, chunk] : chunk_map_) { //iterate through chunk map
         if (abs(pos.x - current_chunk_pos_.x) > renderDistance_ || abs(pos.z - current_chunk_pos_.z) > renderDistance_) { //if chunk is outside render distance call dtor
@@ -130,15 +150,9 @@ World::AddInvisibleChunksToDeletionQueue()
 void
 World::RegenerateAdjacentChunkMeshes(const ChunkPos& pos)
 {
-    static const std::vector<ChunkPos> adjacent_chunk_positions = {
-        {1, 0},
-        {-1, 0},
-        {0, 1},
-        {0, -1}
-    };
-
-    for (auto& adjacent_pos : adjacent_chunk_positions) {
+    for (auto& adjacent_pos : adjacent_chunk_positions_) {
         ChunkPos neighbour_pos = pos + adjacent_pos;
+        // std::cout << "World::RegenerateAdjacentChunkMeshes(): neighbour_pos: " << neighbour_pos.x << ", " << neighbour_pos.z << std::endl;
         chunk_mesh_queue_.Push(neighbour_pos);
     }
 }

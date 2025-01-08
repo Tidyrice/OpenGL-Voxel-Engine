@@ -8,6 +8,7 @@
 #include "window.h"
 #include "shader.h"
 #include "world.h"
+#include "chunk_pos_hash.h"
 
 Chunk::Chunk(ChunkPos pos, World* world) : pos_{pos}, world_{world}
 {
@@ -35,9 +36,9 @@ Chunk::~Chunk()
 }
 
 void
-Chunk::GenerateMesh()
+Chunk::GenerateMesh(std::unordered_map<ChunkPos, Chunk*, ChunkPosHash>& adjacent_chunk_map)
 {
-    mesh_generated_ = false; //atomic, no need for lock
+    std::lock_guard<std::mutex> lock(mesh_mutex_);
 
     vertices_vao_.clear();
     texture_layers_vao_.clear();
@@ -51,8 +52,8 @@ Chunk::GenerateMesh()
                     continue;
                 }
                 for (int block_face = 0; block_face < 6; block_face++) {
-                    if (IsFaceVisible(glm::vec3(i, j, k), static_cast<BlockFace>(block_face))) {
-                        Block* block = BlockFactory::GetBlock(blocks_[i][j][k]);
+                    if (IsFaceVisible(glm::vec3(i, j, k), static_cast<BlockFace>(block_face), adjacent_chunk_map)) {
+                        const Block* block = BlockFactory::GetBlock(blocks_[i][j][k]);
                         num_verticies += block->AddVerticies(vertices_vao_, ebo_, num_verticies, static_cast<BlockFace>(block_face), glm::vec3(i, j, k));
                         block->AddTextureLayers(texture_layers_vao_, static_cast<BlockFace>(block_face));
                     }
@@ -60,20 +61,20 @@ Chunk::GenerateMesh()
             }
         }
     }
-
-    mesh_generated_ = true;
 }
 
 void
 Chunk::RenderChunk()
 {
-    if (mesh_generated_ == false) {
-        std::cout << "Chunk::RenderChunk(): mesh not yet generated for chunk at " << pos_.x << ", " << pos_.z << std::endl;
+    //try to lock the mutex. If mutex is locked, skip rendering (mesh is being regenerated)
+    if (!mesh_mutex_.try_lock()) {
+        std::cout << "Chunk::RenderChunk(): mesh_mutex_ is locked. Skipping render for chunk at (" << pos_.x << ", " << pos_.z << ")" << std::endl;
         return;
     }
 
     if (vertices_vao_.size() == 0 || texture_layers_vao_.size() == 0 || ebo_.size() == 0) {
-        std::cerr << "Chunk::RenderChunk(): vao or EBO is empty" << std::endl;
+        std::cout << "Chunk::RenderChunk(): VAO or EBO empty. Skipping render for chunk at (" << pos_.x << ", " << pos_.z << ")" << std::endl;
+        mesh_mutex_.unlock();
         return;
     }
 
@@ -114,12 +115,15 @@ Chunk::RenderChunk()
 
     //render
     glDrawElements(GL_TRIANGLES, ebo_.size(), GL_UNSIGNED_INT, 0);
+
+    //unlock mutex
+    mesh_mutex_.unlock();
 }
 
 bool
-Chunk::IsFaceVisible(const glm::vec3& position, const BlockFace face) const
+Chunk::IsFaceVisible(const glm::vec3& position, const BlockFace face, std::unordered_map<ChunkPos, Chunk*, ChunkPosHash>& adjacent_chunk_map) const
 {
-    Block* neighbour_block;
+    const Block* neighbour_block;
     
     if (IsFaceOnChunkBorder(position, face)) { //get neighbour block if current block is on chunk border
         if (face == BlockFace::Y_POS || face == BlockFace::Y_NEG) {
@@ -153,11 +157,11 @@ Chunk::IsFaceVisible(const glm::vec3& position, const BlockFace face) const
                 break;
         }
 
-        if (nullptr == world_->GetChunk(neighbour_chunk_pos)) { //if neighbour chunk does not exist then do not render face
+        if (adjacent_chunk_map.count(neighbour_chunk_pos) == 0) { //if neighbour chunk does not exist then do not render face
             return false;
         }
 
-        neighbour_block = BlockFactory::GetBlock(world_->GetChunk(neighbour_chunk_pos)->blocks_[neighbour_block_x][position.y][neighbour_block_z]);
+        neighbour_block = BlockFactory::GetBlock(adjacent_chunk_map.at(neighbour_chunk_pos)->blocks_[neighbour_block_x][position.y][neighbour_block_z]);
     }
     else { //get neighbour block from current chunk
         switch (face) {
