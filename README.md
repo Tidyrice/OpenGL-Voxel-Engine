@@ -14,6 +14,9 @@ One of the coolest things about computer graphics in my opinion are the matrices
 
 ## Screenshots
 
+* Chunk generation occurs on a seperate thread (does not interfere with rendering)
+![multithread-terrain](https://github.com/user-attachments/assets/4900d4b9-7017-450a-805c-b0bef5427a93)
+
 
 
 ## Build using CMake
