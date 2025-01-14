@@ -14,10 +14,11 @@
 
 class Chunk;
 class Block;
+class ChunkTerrainGenerator;
 
 class World {
     public:
-        World(ChunkPos pos);
+        World(ChunkPos pos, int seed);
         ~World();
 
         void RenderWorld(); //renders the world around the current chunk
@@ -41,6 +42,7 @@ class World {
 
         ChunkPos current_chunk_pos_; //current chunk the player is in
         int renderDistance_ = RENDER_DISTANCE; //render distance in chunks
+        std::unique_ptr<ChunkTerrainGenerator> terrain_generator_;
 
         bool terminate_threads_ = false;
 

@@ -27,7 +27,7 @@ set(LIBRARY_INCLUDE_DIRS
     ${LIBRARIES_PATH}/glm/glm
     ${LIBRARIES_PATH}/glad/include
     ${LIBRARIES_PATH}/stb
-    ${LIBRARIES_PATH}/FastNoise2/include/FastNoise)
+    ${LIBRARIES_PATH}/FastNoise2/include)
 
 # Include directories globally for all subdirectories
 include_directories(${LIBRARY_INCLUDE_DIRS})

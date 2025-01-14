@@ -9,25 +9,12 @@
 #include "shader.h"
 #include "world.h"
 #include "chunk_pos_hash.h"
+#include "chunk_terrain_generator.h"
 
-Chunk::Chunk(ChunkPos pos, World* world) : pos_{pos}, world_{world}
+Chunk::Chunk(ChunkPos pos, World* world, const ChunkTerrainGenerator& terrain_generator):
+chunk_data_{pos}, world_{world}
 {
-    //currently makes a fun pattern
-
-    BlockEnum::BlockId block_id = BlockEnum::BlockId::GRASS_BLOCK;
-
-    blocks_.resize(CHUNK_WIDTH);
-    for (auto& row : blocks_) {
-        row.resize(CHUNK_HEIGHT);
-        for (auto& column : row) {
-            column.resize(CHUNK_WIDTH, block_id);
-            for (int i = 0; i < column.size(); i++) {
-                if (i%2 == 0) {
-                    column[i] = BlockEnum::BlockId::STONE_BLOCK;
-                }
-            }
-        }
-    }
+    terrain_generator.GenerateChunkTerrain(chunk_data_, pos.x, pos.z);
 }
 
 Chunk::~Chunk()
@@ -39,7 +26,8 @@ void
 Chunk::GenerateMesh(std::unordered_map<ChunkPos, Chunk*, ChunkPosHash>& adjacent_chunk_map)
 {
     std::lock_guard<std::mutex> lock(mesh_mutex_);
-    std::cout << "Chunk::GenerateMesh(): Generating mesh for chunk at (" << pos_.x << ", " << pos_.z << ")" << std::endl;
+    ChunkPos pos = chunk_data_.GetPos();
+    std::cout << "Chunk::GenerateMesh(): Generating mesh for chunk at (" << pos.x << ", " << pos.z << ")" << std::endl;
 
     vertices_vao_.clear();
     texture_layers_vao_.clear();
@@ -49,12 +37,12 @@ Chunk::GenerateMesh(std::unordered_map<ChunkPos, Chunk*, ChunkPosHash>& adjacent
     for (int i = 0; i < CHUNK_WIDTH; i++) {
         for (int j = 0; j < CHUNK_HEIGHT; j++) {
             for (int k = 0; k < CHUNK_WIDTH; k++) {
-                if (blocks_[i][j][k] == BlockEnum::BlockId::AIR) {
+                if (chunk_data_.GetBlock(i, j, k) == BlockEnum::BlockId::AIR) {
                     continue;
                 }
                 for (int block_face = 0; block_face < 6; block_face++) {
                     if (IsFaceVisible(glm::vec3(i, j, k), static_cast<BlockFace>(block_face), adjacent_chunk_map)) {
-                        const Block* block = BlockFactory::GetBlock(blocks_[i][j][k]);
+                        const Block* block = BlockFactory::GetBlock(chunk_data_.GetBlock(i, j, k));
                         num_verticies += block->AddVerticies(vertices_vao_, ebo_, num_verticies, static_cast<BlockFace>(block_face), glm::vec3(i, j, k));
                         block->AddTextureLayers(texture_layers_vao_, static_cast<BlockFace>(block_face));
                     }
@@ -155,24 +143,25 @@ Chunk::IsFaceVisible(const glm::vec3& position, const BlockFace face, std::unord
         int neighbour_block_x;
         int neighbour_block_z;
 
+        ChunkPos cur_chunk_pos = chunk_data_.GetPos();
         switch (face) {
             case BlockFace::X_POS:
-                neighbour_chunk_pos = pos_ + ChunkPos{1, 0};
+                neighbour_chunk_pos = cur_chunk_pos + ChunkPos{1, 0};
                 neighbour_block_x = 0;
                 neighbour_block_z = position.z;
                 break;
             case BlockFace::X_NEG:
-                neighbour_chunk_pos = pos_ + ChunkPos{-1, 0};
+                neighbour_chunk_pos = cur_chunk_pos + ChunkPos{-1, 0};
                 neighbour_block_x = CHUNK_WIDTH - 1;
                 neighbour_block_z = position.z;
                 break;
             case BlockFace::Z_POS:
-                neighbour_chunk_pos = pos_ + ChunkPos{0, 1};
+                neighbour_chunk_pos = cur_chunk_pos + ChunkPos{0, 1};
                 neighbour_block_x = position.x;
                 neighbour_block_z = 0;
                 break;
             case BlockFace::Z_NEG:
-                neighbour_chunk_pos = pos_ + ChunkPos{0, -1};
+                neighbour_chunk_pos = cur_chunk_pos + ChunkPos{0, -1};
                 neighbour_block_x = position.x;
                 neighbour_block_z = CHUNK_WIDTH - 1;
                 break;
@@ -182,27 +171,27 @@ Chunk::IsFaceVisible(const glm::vec3& position, const BlockFace face, std::unord
             return false;
         }
 
-        neighbour_block = BlockFactory::GetBlock(adjacent_chunk_map.at(neighbour_chunk_pos)->blocks_[neighbour_block_x][position.y][neighbour_block_z]);
+        neighbour_block = BlockFactory::GetBlock(adjacent_chunk_map.at(neighbour_chunk_pos)->chunk_data_.GetBlock(neighbour_block_x, position.y, neighbour_block_z));
     }
     else { //get neighbour block from current chunk
         switch (face) {
             case BlockFace::X_POS:
-                neighbour_block = BlockFactory::GetBlock(blocks_[position.x + 1][position.y][position.z]);
+                neighbour_block = BlockFactory::GetBlock(chunk_data_.GetBlock(position.x + 1, position.y, position.z));
                 break;
             case BlockFace::X_NEG:
-                neighbour_block = BlockFactory::GetBlock(blocks_[position.x - 1][position.y][position.z]);
+                neighbour_block = BlockFactory::GetBlock(chunk_data_.GetBlock(position.x - 1, position.y, position.z));
                 break;
             case BlockFace::Z_POS:
-                neighbour_block = BlockFactory::GetBlock(blocks_[position.x][position.y][position.z + 1]);
+                neighbour_block = BlockFactory::GetBlock(chunk_data_.GetBlock(position.x, position.y, position.z + 1));
                 break;
             case BlockFace::Z_NEG:
-                neighbour_block = BlockFactory::GetBlock(blocks_[position.x][position.y][position.z - 1]);
+                neighbour_block = BlockFactory::GetBlock(chunk_data_.GetBlock(position.x, position.y, position.z - 1));
                 break;
             case BlockFace::Y_POS:
-                neighbour_block = BlockFactory::GetBlock(blocks_[position.x][position.y + 1][position.z]);
+                neighbour_block = BlockFactory::GetBlock(chunk_data_.GetBlock(position.x, position.y + 1, position.z));
                 break;
             case BlockFace::Y_NEG:
-                neighbour_block = BlockFactory::GetBlock(blocks_[position.x][position.y - 1][position.z]);
+                neighbour_block = BlockFactory::GetBlock(chunk_data_.GetBlock(position.x, position.y - 1, position.z));
                 break;
         }
     }
@@ -244,6 +233,7 @@ glm::mat4
 Chunk::GetModelMatrix() const
 {
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(pos_.x * CHUNK_WIDTH, 0.0f, pos_.z * CHUNK_WIDTH));
+    ChunkPos pos = chunk_data_.GetPos();
+    model = glm::translate(model, glm::vec3(pos.x * CHUNK_WIDTH, 0.0f, pos.z * CHUNK_WIDTH));
     return model;
 }

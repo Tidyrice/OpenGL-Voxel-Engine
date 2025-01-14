@@ -1,5 +1,5 @@
 # Create a library for the game module
-add_library(game game_scene.cpp block_factory.cpp block.cpp block_texture_map.h chunk.cpp chunk_pos_hash.cpp world.cpp)
+add_library(game game_scene.cpp block_factory.cpp block.cpp block_texture_map.h chunk.cpp chunk_pos_hash.cpp world.cpp chunk_noise.cpp chunk_data.cpp chunk_terrain_generator.cpp)
 target_compile_definitions(game PRIVATE TEXTURES_PATH="${ASSETS_PATH}/textures")
 target_compile_definitions(game PRIVATE VERTEX_POS_LOCATION=0)
 target_compile_definitions(game PRIVATE TEX_COORD_LOCATION=1)
@@ -16,6 +16,7 @@ target_link_libraries(game PRIVATE
 
 target_link_libraries(game PUBLIC
     glm
+    FastNoise2
 )
 
 # Include directories for this library

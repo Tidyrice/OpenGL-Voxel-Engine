@@ -8,15 +8,17 @@
 #include "chunk_pos.h"
 #include <mutex>
 #include <GLFW/glfw3.h>
+#include "chunk_data.h"
 
 class World;
 struct ChunkPosHash;
+class ChunkTerrainGenerator;
 
 class Chunk {
     public:
         // x and z are the chunk coordinates. Chunk(1, 2) will generate the chunk at (CHUNK_WIDTH, 2*CHUNK_WIDTH) to (2*CHUNK_WIDTH-1, 3*CHUNK_WIDTH-1)
         // each chunk is part of a world
-        Chunk(ChunkPos pos, World* world);
+        Chunk(ChunkPos pos, World* world, const ChunkTerrainGenerator& terrain_generator);
         ~Chunk();
 
         void RenderChunk();
@@ -29,8 +31,7 @@ class Chunk {
         bool IsFaceOnChunkBorder(const glm::vec3& position, const BlockFace face) const;
         glm::mat4 GetModelMatrix() const;
 
-        std::vector<std::vector<std::vector<BlockEnum::BlockId>>> blocks_; //blocks_[x][y][z]
-        ChunkPos pos_;
+        ChunkData chunk_data_;
 
         //these methods must only be called from the MAIN THREAD since OpenGL is not thread safe
         void InitializeBuffers();

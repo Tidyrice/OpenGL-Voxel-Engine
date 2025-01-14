@@ -12,6 +12,7 @@
 #include "window.h"
 #include "shader.h"
 #include "world.h"
+#include "game_seed.h"
 
 GameScene::GameScene(): Scene{}
 {
@@ -92,7 +93,7 @@ GameScene::UpdatePerFrame()
     ChunkPos current_chunk_pos{(int)pos.x / CHUNK_WIDTH, (int)pos.z / CHUNK_WIDTH};
 
     //render world based on current chunk
-    static World world{current_chunk_pos};
+    static World world{current_chunk_pos, WORLD_SEED};
     world.UpdateChunkPos(current_chunk_pos);
     world.RenderWorld();
 }

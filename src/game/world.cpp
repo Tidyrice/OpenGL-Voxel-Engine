@@ -3,12 +3,13 @@
 #include "thread"
 #include <iostream>
 #include "block.h"
+#include "chunk_terrain_generator.h"
 
 const std::vector<ChunkPos> World::adjacent_chunk_positions_ = {
     {1, 0}, {-1, 0}, {0, 1}, {0, -1}
 };
 
-World::World(ChunkPos pos) : current_chunk_pos_{pos}
+World::World(ChunkPos pos, int seed) : current_chunk_pos_{pos}, terrain_generator_{std::make_unique<ChunkTerrainGenerator>(seed)}
 {
     AddVisibleChunksToCreationQueue(); //add chunks within render distance to queue (queue is already empty)
 
@@ -77,7 +78,7 @@ World::ProcessChunkCreationQueueThreaded()
         // std::cout << "World::CreateChunkThreaded(): acquired X lock" << std::endl;
 
         if (chunk_map_.count(pos) == 0) { //only execute if chunk doesn't exist
-            chunk_map_[pos] = std::make_unique<Chunk>(pos, this); //create chunk
+            chunk_map_[pos] = std::make_unique<Chunk>(pos, this, *(terrain_generator_.get())); //create chunk
             chunk_mesh_queue_.Push(pos); //generate mesh for chunk
             RegenerateAdjacentChunkMeshes(pos); //let adjacent chunks know to update their meshes
         }
