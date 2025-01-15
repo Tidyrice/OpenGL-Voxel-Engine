@@ -1,25 +1,31 @@
 #include "chunk_noise.h"
-#include <FastNoise/Generators/Fractal.h>
-#include <FastNoise/FastNoise.h>
-#include <game_config.h>
-#include <iostream>
+#include <FastNoiseLite.h>
+#include "game_config.h"
+#include "chunk_noise_config.h"
 
 ChunkNoise::ChunkNoise(int seed) : seed_(seed)
 {
-    noise_fn_ = FastNoise::New<FastNoise::Perlin>();
-    generator_ = FastNoise::New<FastNoise::FractalFBm>();
+    noise_fn_.SetSeed(seed);
+    noise_fn_.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
 
-    generator_->SetSource(noise_fn_);
-    generator_->SetOctaveCount(5);
-
-    generator_->SetGain(0.5f); //amplitude of each octave (compared to previous)
-    generator_->SetLacunarity(2.0f); //frequency of each octave (compared to previous)
+    noise_fn_.SetFractalType(FastNoiseLite::FractalType_FBm);
+    noise_fn_.SetFractalOctaves(OCTAVES);
+    noise_fn_.SetFrequency(FREQUENCY);
+    noise_fn_.SetFractalGain(GAIN);
+    noise_fn_.SetFractalLacunarity(LACUNARITY);
 }
 
 std::vector<float>
 ChunkNoise::GenerateChunkNoise(int chunk_x, int chunk_z) const
 {
     std::vector<float> noise(CHUNK_WIDTH * CHUNK_WIDTH);
-    generator_->GenUniformGrid2D(noise.data(), chunk_x * CHUNK_WIDTH, chunk_z * CHUNK_WIDTH, CHUNK_WIDTH, CHUNK_WIDTH, 0.01f, seed_);
+
+    for (int z = 0; z < CHUNK_WIDTH; z++) {
+        for (int x = 0; x < CHUNK_WIDTH; x++) {
+            float height = noise_fn_.GetNoise(float(chunk_x * CHUNK_WIDTH + x), float(chunk_z * CHUNK_WIDTH + z));
+            noise[x + z * CHUNK_WIDTH] = height;
+        }
+    }
+
     return noise;
 }

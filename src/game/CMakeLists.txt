@@ -16,7 +16,6 @@ target_link_libraries(game PRIVATE
 
 target_link_libraries(game PUBLIC
     glm
-    FastNoise2
 )
 
 # Include directories for this library

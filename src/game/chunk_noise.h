@@ -1,7 +1,7 @@
 #ifndef CHUNK_NOISE_H
 #define CHUNK_NOISE_H
 
-#include <FastNoise/FastNoise.h>
+#include <FastNoiseLite.h>
 #include <vector>
 
 class ChunkNoise {
@@ -14,8 +14,7 @@ class ChunkNoise {
 
     private:
         int seed_;
-        FastNoise::SmartNode<FastNoise::Perlin> noise_fn_;
-        FastNoise::SmartNode<FastNoise::FractalFBm> generator_;
+        FastNoiseLite noise_fn_;
 };
 
 #endif // CHUNK_NOISE_H

@@ -1,0 +1,9 @@
+#ifndef CHUNK_NOISE_CONFIG_H
+#define CHUNK_NOISE_CONFIG_H
+
+#define FREQUENCY 0.01f
+#define OCTAVES 5
+#define GAIN 0.5f
+#define LACUNARITY 2.0f
+
+#endif // CHUNK_NOISE_CONFIG_H
