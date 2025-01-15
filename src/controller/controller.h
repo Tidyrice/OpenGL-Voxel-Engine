@@ -15,9 +15,11 @@ class Controller {
         ~Controller() = default;
 
         void UpdateKeyEvents(GLFWwindow* glfw_window);
+        static void ProcessKeyEventsCallback(GLFWwindow* glfw_window, int key, int scancode, int action, int mods);
         static void ProcessMouseMovementCallback(GLFWwindow* glfw_window, double x, double y);
 
     private:
+        void HandleKeysInterrupt(int key, int action);
         void HandleMouseMovement(double x, double y);
 
         Scene* scene_;

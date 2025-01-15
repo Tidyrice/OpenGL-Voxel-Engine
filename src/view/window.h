@@ -18,6 +18,8 @@ class Window {
         ~Window() = default;
 
         void RegisterWindowCallbacks();
+        void SetFullScreen(bool full_screen);
+        bool IsFullScreen() const;
 
         enum class RenderMode {
             FILL_MODE,
@@ -51,12 +53,15 @@ class Window {
         void UpdateDeltaTime();
 
         /* PRIVATE MEMBERS */
+        bool full_screen_ = false;
         Shader* shader_;
         Scene* scene_;
 
         GLFWwindow* glfw_window_ptr_;
         int window_width_ = 0;
         int window_height_ = 0;
+        int window_width_prev_, window_height_prev_, window_x_prev, window_y_prev; //for fullscreen toggle
+
         float delta_time_ = 0.0f;
         float last_frame_ = 0.0f;
 };

@@ -56,7 +56,8 @@ Window::RegisterWindowCallbacks()
     //resize callback
     glfwSetFramebufferSizeCallback(glfw_window_ptr_, WindowResizeCallback);
 
-    //handle mouse input
+    //handle input
+    glfwSetKeyCallback(glfw_window_ptr_, Controller::ProcessKeyEventsCallback);
     glfwSetInputMode(glfw_window_ptr_, GLFW_CURSOR, GLFW_CURSOR_DISABLED); //hide and capture cursor
     glfwSetCursorPosCallback(glfw_window_ptr_, Controller::ProcessMouseMovementCallback);
 }
@@ -109,6 +110,34 @@ Window::Clear()
     //clears all colours
     GLclampf Red = 0.0f, Green = 0.0f, Blue = 0.0f, Alpha = 0.0f;
     glClearColor(Red, Green, Blue, Alpha);
+}
+
+void
+Window::SetFullScreen(bool full_screen_sel)
+{
+    if (full_screen_sel == full_screen_) {
+        return;
+    }
+
+    if (full_screen_sel) {
+        window_width_prev_ = window_width_;
+        window_height_prev_ = window_height_;
+        glfwGetWindowPos(glfw_window_ptr_, &window_x_prev, &window_y_prev);
+        
+        const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        glfwSetWindowMonitor(glfw_window_ptr_, glfwGetPrimaryMonitor(), 0, 0, mode->width, mode->height, mode->refreshRate);
+    }
+    else {
+        glfwSetWindowMonitor(glfw_window_ptr_, NULL, window_x_prev, window_y_prev, window_width_prev_, window_height_prev_, 0);
+    }
+
+    full_screen_ = full_screen_sel;
+}
+
+bool
+Window::IsFullScreen() const
+{
+    return full_screen_;
 }
 
 
