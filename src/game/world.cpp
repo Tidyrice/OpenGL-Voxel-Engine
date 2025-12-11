@@ -72,13 +72,16 @@ World::ProcessChunkCreationQueueThreaded()
 {
     while (!terminate_threads_) {
         ChunkPos pos = chunk_creation_queue_.Pop();
+        auto* new_chunk = new Chunk(pos, this, *(terrain_generator_.get())); //create chunk BEFORE we acquire lock
 
         // std::cout << "World::CreateChunkThreaded()" << std::endl;
         std::unique_lock<std::shared_mutex> lock(chunk_map_mutex_);
         // std::cout << "World::CreateChunkThreaded(): acquired X lock" << std::endl;
 
         if (chunk_map_.count(pos) == 0) { //only execute if chunk doesn't exist
-            chunk_map_[pos] = std::make_unique<Chunk>(pos, this, *(terrain_generator_.get())); //create chunk
+            chunk_map_[pos] = std::unique_ptr<Chunk>(new_chunk);
+            lock.unlock(); //end critical section
+
             chunk_mesh_queue_.Push(pos); //generate mesh for chunk
             RegenerateAdjacentChunkMeshes(pos); //let adjacent chunks know to update their meshes
         }
