@@ -72,19 +72,30 @@ World::ProcessChunkCreationQueueThreaded()
 {
     while (!terminate_threads_) {
         ChunkPos pos = chunk_creation_queue_.Pop();
-        auto* new_chunk = new Chunk(pos, this, *(terrain_generator_.get())); //create chunk BEFORE we acquire lock
 
-        // std::cout << "World::CreateChunkThreaded()" << std::endl;
-        std::unique_lock<std::shared_mutex> lock(chunk_map_mutex_);
-        // std::cout << "World::CreateChunkThreaded(): acquired X lock" << std::endl;
+        {
+            std::shared_lock<std::shared_mutex> chunk_map_lock(chunk_map_mutex_);
+            std::lock_guard<std::mutex> generating_chunks_lock(generating_chunks_mutex_);
 
-        if (chunk_map_.count(pos) == 0) { //only execute if chunk doesn't exist
-            chunk_map_[pos] = std::unique_ptr<Chunk>(new_chunk);
-            lock.unlock(); //end critical section
+            if (chunk_map_.count(pos) != 0 || generating_chunks_.count(pos) != 0) {
+                continue;
+            }
 
-            chunk_mesh_queue_.Push(pos); //generate mesh for chunk
-            RegenerateAdjacentChunkMeshes(pos); //let adjacent chunks know to update their meshes
+            generating_chunks_.insert(pos); //claim work so other threads don't also try to generate this chunk
         }
+
+        auto new_chunk = std::make_unique<Chunk>(pos, this, *(terrain_generator_.get())); //create chunk BEFORE we acquire lock
+
+        {
+            std::unique_lock<std::shared_mutex> chunk_map_lock(chunk_map_mutex_);
+            std::lock_guard<std::mutex> generating_chunks_lock(generating_chunks_mutex_);
+
+            chunk_map_[pos] = std::move(new_chunk);
+            generating_chunks_.erase(pos);
+        }
+
+        chunk_mesh_queue_.Push(pos); //generate mesh for chunk
+        RegenerateAdjacentChunkMeshes(pos); //let adjacent chunks know to update their meshes
     }
 }
 

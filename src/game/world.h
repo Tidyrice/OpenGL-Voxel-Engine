@@ -11,6 +11,7 @@
 #include "chunk_pos_hash.h"
 #include <shared_mutex>
 #include <glm/glm.hpp>
+#include <unordered_set>
 
 class Chunk;
 class Block;
@@ -36,6 +37,9 @@ class World {
         ts_queue<ChunkPos> chunk_creation_queue_; //holds chunks that need to be created
         ts_set_queue<ChunkPos, ChunkPosHash> chunk_mesh_queue_; //holds chunks that need to have their mesh generated
         ts_queue<ChunkPos> chunk_deletion_queue_; //holds chunks that need to be deleted
+
+        std::unordered_set<ChunkPos, ChunkPosHash> generating_chunks_; //holds the coordinates of the chunks that are currently being generated
+        std::mutex generating_chunks_mutex_;
         
         std::unordered_map<ChunkPos, std::unique_ptr<Chunk>, ChunkPosHash> chunk_map_; //holds all active chunks
         std::shared_mutex chunk_map_mutex_;
